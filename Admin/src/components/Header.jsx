@@ -1,3 +1,5 @@
+import { rolesDescripcion } from '../data/usuariosData';
+
 // Iconos simples SVG
 const LogOut = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -11,6 +13,9 @@ const User = () => (
 );
 
 const Header = ({ currentUser, onLogout, isUserView = false }) => {
+  const getRolColor = (rol) => {
+    return rolesDescripcion[rol]?.color || 'bg-gray-600';
+  };
   const handleLogout = () => {
     if (onLogout) {
       onLogout();
@@ -19,23 +24,32 @@ const Header = ({ currentUser, onLogout, isUserView = false }) => {
   };
 
   return (
-    <header className="no-print bg-white shadow-md h-16 flex items-center justify-between px-6 fixed top-0 right-0 z-10 transition-all duration-300" style={{ left: isUserView ? '0' : '60px' }}>
+    <header className="no-print bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 fixed top-0 right-0 z-10" style={{ left: isUserView ? '0' : '60px' }}>
       <div className="flex-1">
-        <h2 className="text-2xl font-semibold text-gray-800">
+        <h2 className="text-lg font-semibold text-gray-800">
           {isUserView ? 'Mi Portal de Documentos' : 'Panel Administrativo'}
         </h2>
       </div>
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2 text-gray-700">
-          <User className="w-5 h-5" />
-          <span className="text-sm">{currentUser?.nombre || 'Usuario'}</span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 text-gray-700">
+            <User className="w-5 h-5 text-gray-600" />
+            <div className="flex flex-col">
+              <span className="text-sm font-medium text-gray-700">{currentUser?.nombre || 'Usuario'}</span>
+              {currentUser?.rol && (
+                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full text-white ${getRolColor(currentUser.rol)}`}>
+                  {rolesDescripcion[currentUser.rol]?.nombre || currentUser.rol}
+                </span>
+              )}
+            </div>
+          </div>
         </div>
         <button 
           onClick={handleLogout}
-          className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors border border-gray-200"
         >
-          <LogOut className="w-5 h-5" />
-          <span>Cerrar Sesión</span>
+          <LogOut className="w-4 h-4" />
+          <span className="text-sm">Cerrar Sesión</span>
         </button>
       </div>
     </header>

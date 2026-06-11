@@ -180,9 +180,26 @@ const EditorAnexo1 = ({ companies = initialCompanies }) => {
     const estadoAnterior = respuestas[itemId]?.estado;
     const nuevoEstado = nuevoValor.estado;
 
+    // Asegurar que observaciones sea un array (migrar de string antiguo si es necesario)
+    let valorFinalizado = { ...nuevoValor };
+    if (!Array.isArray(valorFinalizado.observaciones)) {
+      if (valorFinalizado.observacion && typeof valorFinalizado.observacion === 'string' && valorFinalizado.observacion.trim()) {
+        // Migrar observación string a array
+        valorFinalizado.observaciones = [{
+          id: Date.now(),
+          texto: valorFinalizado.observacion.trim(),
+          fecha: new Date().toISOString().split('T')[0],
+          usuario: 'admin'
+        }];
+        valorFinalizado.observacion = ''; // Limpiar campo legacy
+      } else {
+        valorFinalizado.observaciones = [];
+      }
+    }
+
     setRespuestas(prev => ({
       ...prev,
-      [itemId]: nuevoValor
+      [itemId]: valorFinalizado
     }));
 
     // Si cambió de NO_CUMPLE a otro estado, no hacer nada
@@ -209,6 +226,40 @@ const EditorAnexo1 = ({ companies = initialCompanies }) => {
       tareas.push(nuevaTarea);
     }
   };
+
+  // Efecto para migrar observaciones antiguas al cargar
+  useEffect(() => {
+    let necesitaMigracion = false;
+    const respuestasMigradas = { ...respuestas };
+    
+    Object.keys(respuestasMigradas).forEach(itemId => {
+      const respuesta = respuestasMigradas[itemId];
+      if (respuesta && !Array.isArray(respuesta.observaciones) && respuesta.observacion && typeof respuesta.observacion === 'string' && respuesta.observacion.trim()) {
+        respuestasMigradas[itemId] = {
+          ...respuesta,
+          observaciones: [{
+            id: Date.now(),
+            texto: respuesta.observacion.trim(),
+            fecha: new Date().toISOString().split('T')[0],
+            usuario: 'admin'
+          }],
+          observacion: ''
+        };
+        necesitaMigracion = true;
+      } else if (respuesta && !Array.isArray(respuesta.observaciones)) {
+        respuestasMigradas[itemId] = {
+          ...respuesta,
+          observaciones: []
+        };
+        necesitaMigracion = true;
+      }
+    });
+
+    if (necesitaMigracion) {
+      setRespuestas(respuestasMigradas);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Solo ejecutar una vez al montar
 
   // Filtrar ítems según los filtros (solo ítems aplicables)
   const itemsFiltrados = useMemo(() => {
@@ -305,7 +356,7 @@ const EditorAnexo1 = ({ companies = initialCompanies }) => {
           <p className="text-gray-500">Empresa no encontrada</p>
           <button 
             onClick={() => navigate('/anexo1')}
-            className="mt-4 px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark"
+            className="mt-4 px-4 py-2 bg-primary text-white rounded hover:bg-primary-hover"
           >
             Volver a Gestión Anexo 1
           </button>
@@ -322,7 +373,7 @@ const EditorAnexo1 = ({ companies = initialCompanies }) => {
           <p className="text-gray-500">Error al cargar las secciones del Anexo 1</p>
           <button 
             onClick={() => navigate('/anexo1')}
-            className="mt-4 px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark"
+            className="mt-4 px-4 py-2 bg-primary text-white rounded hover:bg-primary-hover"
           >
             Volver a Gestión Anexo 1
           </button>
@@ -348,7 +399,7 @@ const EditorAnexo1 = ({ companies = initialCompanies }) => {
           </p>
           <button 
             onClick={() => navigate('/anexo1')}
-            className="w-full px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark transition-colors"
+            className="w-full px-4 py-2 bg-primary text-white rounded hover:bg-primary-hover transition-colors"
           >
             Volver a Gestión Anexo 1
           </button>
@@ -466,7 +517,7 @@ const EditorAnexo1 = ({ companies = initialCompanies }) => {
             </select>
             <button
               onClick={() => handleGuardar()}
-              className="flex items-center gap-2 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+              className="flex items-center gap-2 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors"
             >
               <SaveIcon className="w-5 h-5" />
               Guardar
@@ -504,20 +555,20 @@ const EditorAnexo1 = ({ companies = initialCompanies }) => {
             </select>
             <button
               onClick={() => handleGuardar()}
-              className="flex items-center gap-1.5 px-4 py-1.5 text-sm bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
+              className="flex items-center gap-1.5 px-4 py-1.5 text-sm bg-primary text-white rounded-md hover:bg-primary-hover transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
             >
               <SaveIcon className="w-4 h-4" />
               Guardar
             </button>
             <button
               onClick={() => handleGuardar('Publicado')}
-              className="flex items-center gap-1.5 px-4 py-1.5 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              className="flex items-center gap-1.5 px-4 py-1.5 text-sm bg-success text-white rounded-md hover:bg-success-hover transition-colors focus:outline-none focus:ring-2 focus:ring-success focus:ring-offset-2"
             >
               Publicar
             </button>
             <button
               onClick={handleImprimir}
-              className="flex items-center gap-1.5 px-4 py-1.5 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+              className="flex items-center gap-1.5 px-4 py-1.5 text-sm bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-offset-2"
             >
               <PrinterIcon className="w-4 h-4" />
               Imprimir
@@ -746,7 +797,7 @@ function PanelEvidencias({ itemId, anexoId, empresaId, onCerrar, onSubirEvidenci
           <button
             onClick={handleSubir}
             disabled={archivosSeleccionados.length === 0}
-            className="mt-4 w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+            className="mt-4 w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
           >
             Subir {archivosSeleccionados.length > 0 ? `${archivosSeleccionados.length} ` : ''}Evidencia{archivosSeleccionados.length > 1 ? 's' : ''}
           </button>
@@ -786,7 +837,7 @@ function PanelEvidencias({ itemId, anexoId, empresaId, onCerrar, onSubirEvidenci
                       href={evidencia.archivo}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="ml-2 text-primary hover:text-primary-dark"
+                      className="ml-2 text-primary hover:text-primary-hover"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -810,7 +861,7 @@ function SeccionDatos({ seccion, datosGenerales, onChange, isExpanded, onToggle 
     <section className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
       <button
         onClick={onToggle}
-        className="w-full px-6 py-4 bg-gradient-to-r from-primary via-primary-dark to-secondary text-white flex items-center justify-between hover:opacity-90 transition-opacity"
+        className="w-full px-6 py-4 bg-primary text-white flex items-center justify-between hover:bg-primary-hover transition-colors"
       >
         <div className="flex items-center gap-3">
           <svg
@@ -895,16 +946,42 @@ function FilaChecklist({ item, value, onChange, categoriaGeneral, isFirstRow, to
     return false;
   }, [item.id, numeroTrabajadores]);
 
+  // Estado para el modal de observaciones
+  const [showModalObservaciones, setShowModalObservaciones] = useState(false);
+
+  // Normalizar observaciones: convertir string antiguo a array y obtener array de observaciones
+  const observacionesArray = useMemo(() => {
+    if (!value) return [];
+    // Si hay observaciones como array, usarlas
+    if (Array.isArray(value.observaciones)) {
+      return value.observaciones;
+    }
+    // Si hay observacion como string (legacy), convertirla a array
+    if (value.observacion && typeof value.observacion === 'string' && value.observacion.trim()) {
+      return [{
+        id: Date.now(),
+        texto: value.observacion.trim(),
+        fecha: new Date().toISOString().split('T')[0],
+        usuario: 'admin'
+      }];
+    }
+    return [];
+  }, [value]);
+
   // Auto-marcar como NA si corresponde (solo una vez al montar o cuando cambia debeSerNA)
   useEffect(() => {
     if (debeSerNA && (!value || value.estado !== 'NA')) {
+      const obs = Array.isArray(value?.observaciones) ? value.observaciones : 
+                  (value?.observacion ? [{ id: Date.now(), texto: value.observacion, fecha: new Date().toISOString().split('T')[0], usuario: 'admin' }] : []);
       onChange(item.id, { 
         estado: 'NA',
-        observacion: value?.observacion || ''
+        observaciones: obs,
+        observacion: '' // Mantener para compatibilidad pero migrar a array
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debeSerNA, item.id]); // Solo ejecutar cuando cambia debeSerNA o item.id
+  
   const handleEstado = (estado) => {
     onChange(item.id, {
       ...value,
@@ -912,10 +989,29 @@ function FilaChecklist({ item, value, onChange, categoriaGeneral, isFirstRow, to
     });
   };
 
-  const handleObs = (e) => {
+  // Agregar nueva observación
+  const handleAgregarObservacion = (nuevaObservacion) => {
+    const observacionesActuales = observacionesArray;
+    const nuevaObs = {
+      id: Date.now() + Math.random(),
+      texto: nuevaObservacion.trim(),
+      fecha: new Date().toISOString().split('T')[0],
+      usuario: 'admin'
+    };
     onChange(item.id, {
       ...value,
-      observacion: e.target.value,
+      observaciones: [...observacionesActuales, nuevaObs],
+      observacion: '' // Limpiar campo legacy
+    });
+  };
+
+  // Eliminar observación
+  const handleEliminarObservacion = (observacionId) => {
+    const observacionesActuales = observacionesArray;
+    onChange(item.id, {
+      ...value,
+      observaciones: observacionesActuales.filter(obs => obs.id !== observacionId),
+      observacion: ''
     });
   };
 
@@ -945,7 +1041,7 @@ function FilaChecklist({ item, value, onChange, categoriaGeneral, isFirstRow, to
       {isFirstRow && categoriaGeneral && (
         <td
           rowSpan={totalRows}
-          className="border border-gray-300 p-3 text-[10px] leading-tight text-center align-middle w-[12%] font-semibold bg-primary/10 text-primary-dark"
+          className="border border-gray-300 p-3 text-[10px] leading-tight text-center align-middle w-[12%] font-semibold bg-gray-100 text-primary"
           style={{ verticalAlign: 'middle' }}
         >
           <div className="flex items-center justify-center h-full text-center">
@@ -1052,16 +1148,36 @@ function FilaChecklist({ item, value, onChange, categoriaGeneral, isFirstRow, to
           className="w-4 h-4 text-yellow-600 focus:ring-2 focus:ring-yellow-500 cursor-pointer"
         />
       </td>
-      <td className="border border-gray-300 p-2 align-top w-[20%] bg-white">
-        <textarea
-          value={value?.observacion || ""}
-          onChange={handleObs}
-          placeholder="Observaciones..."
-          className="w-full h-16 text-[9px] border border-gray-300 rounded px-2 py-1 resize-none focus:outline-none focus:ring-1 focus:ring-primary"
-          rows={2}
-        />
+      <td className="border border-gray-300 p-2 align-middle w-[10%] bg-white">
+        <div className="flex flex-col items-center gap-2">
+          <div className="text-center">
+            <span className="text-[9px] font-semibold text-gray-600">
+              {observacionesArray.length} observación{observacionesArray.length !== 1 ? 'es' : ''}
+            </span>
+          </div>
+          <button
+            onClick={() => setShowModalObservaciones(true)}
+            className="w-full px-2 py-1.5 text-[8px] font-medium bg-primary text-white rounded hover:bg-primary-hover transition-colors flex items-center justify-center gap-1 shadow-sm"
+            title="Gestionar Observaciones"
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Añadir
+          </button>
+        </div>
+        
+        {/* Modal de Observaciones */}
+        {showModalObservaciones && (
+          <ModalObservaciones
+            observaciones={observacionesArray}
+            onAgregar={handleAgregarObservacion}
+            onEliminar={handleEliminarObservacion}
+            onCerrar={() => setShowModalObservaciones(false)}
+          />
+        )}
       </td>
-      <td className="border border-gray-300 p-2 align-middle w-[15%] bg-white">
+      <td className="border border-gray-300 p-2 align-middle w-[18%] bg-white">
         <div className="flex flex-col gap-1">
           <button
             onClick={() => {
@@ -1108,13 +1224,116 @@ function FilaChecklist({ item, value, onChange, categoriaGeneral, isFirstRow, to
   );
 }
 
+// Componente Modal de Observaciones
+function ModalObservaciones({ observaciones, onAgregar, onEliminar, onCerrar }) {
+  const [nuevaObservacion, setNuevaObservacion] = useState('');
+
+  const handleEnviar = () => {
+    if (nuevaObservacion.trim()) {
+      onAgregar(nuevaObservacion);
+      setNuevaObservacion('');
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && e.ctrlKey) {
+      handleEnviar();
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] flex flex-col">
+        {/* Header */}
+        <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-800">Gestionar Observaciones</h2>
+          <button
+            onClick={onCerrar}
+            className="text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Lista de observaciones */}
+        <div className="flex-1 overflow-y-auto p-6">
+          {observaciones.length === 0 ? (
+            <p className="text-gray-500 text-center py-8">No hay observaciones registradas</p>
+          ) : (
+            <div className="space-y-3">
+              {observaciones.map((observacion) => (
+                <div
+                  key={observacion.id}
+                  className="p-4 bg-gray-50 border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-800 whitespace-pre-wrap">{observacion.texto}</p>
+                      <p className="text-xs text-gray-500 mt-2">
+                        {observacion.fecha} • {observacion.usuario || 'admin'}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => onEliminar(observacion.id)}
+                      className="text-red-500 hover:text-red-700 transition-colors flex-shrink-0"
+                      title="Eliminar observación"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Formulario para agregar nueva observación */}
+        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <div className="space-y-3">
+            <label className="block text-sm font-medium text-gray-700">
+              Nueva Observación
+            </label>
+            <textarea
+              value={nuevaObservacion}
+              onChange={(e) => setNuevaObservacion(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Escriba una nueva observación... (Ctrl+Enter para enviar)"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+              rows={3}
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={onCerrar}
+                className="px-4 py-2 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cerrar
+              </button>
+              <button
+                onClick={handleEnviar}
+                disabled={!nuevaObservacion.trim()}
+                className="px-4 py-2 text-sm text-white bg-primary rounded-lg hover:bg-primary-hover disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+              >
+                Enviar Observación
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Componente para sección de checklist
 function SeccionChecklist({ seccion, items, respuestas, onChange, isExpanded, onToggle, empresaId, anexoId, numeroTrabajadores }) {
   return (
     <section className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
       <button
         onClick={onToggle}
-        className="w-full px-6 py-4 bg-gradient-to-r from-primary via-primary-dark to-secondary text-white flex items-center justify-between hover:opacity-90 transition-opacity"
+        className="w-full px-6 py-4 bg-primary text-white flex items-center justify-between hover:bg-primary-hover transition-colors"
       >
         <div className="flex items-center gap-3">
           <svg
@@ -1139,7 +1358,7 @@ function SeccionChecklist({ seccion, items, respuestas, onChange, isExpanded, on
         <div className="p-6">
           <table className="w-full border-2 border-gray-300 rounded-lg overflow-hidden shadow-sm text-[11px]">
             <thead>
-              <tr className="bg-gradient-to-r from-primary via-primary-dark to-secondary text-white">
+              <tr className="bg-primary text-white">
                 <th className="border border-gray-300 p-2 text-[10px] font-bold w-[12%]"></th>
                 <th className="border border-gray-300 p-2 text-[10px] font-bold w-[12%]"></th>
                 <th className="border border-gray-300 p-2 text-[10px] font-bold w-[3%]">#</th>
@@ -1155,10 +1374,10 @@ function SeccionChecklist({ seccion, items, respuestas, onChange, isExpanded, on
                 <th className="border border-gray-300 p-2 text-[10px] font-bold w-[6%] bg-yellow-600">
                   NO APLICA
                 </th>
-                <th className="border border-gray-300 p-2 text-[10px] font-bold w-[20%]">
+                <th className="border border-gray-300 p-2 text-[10px] font-bold w-[10%]">
                   OBSERVACIONES
                 </th>
-                <th className="border border-gray-300 p-2 text-[10px] font-bold w-[3%]">
+                <th className="border border-gray-300 p-2 text-[10px] font-bold w-[18%]">
                   ACCIONES
                 </th>
               </tr>

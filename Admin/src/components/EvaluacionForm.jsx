@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { plantillasEvaluacion } from '../data/plantillasEvaluacionData';
 
 const EvaluacionForm = ({ 
   onAddEvaluacion, 
@@ -17,6 +18,9 @@ const EvaluacionForm = ({
   });
 
   const [showPreview, setShowPreview] = useState(false);
+  const [guardarComoPlantilla, setGuardarComoPlantilla] = useState(false);
+  const [showModalPlantillas, setShowModalPlantillas] = useState(false);
+  const [searchPlantilla, setSearchPlantilla] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -142,6 +146,46 @@ const EvaluacionForm = ({
     return `EVAL${new Date().getFullYear()}`;
   };
 
+  const cargarPlantilla = (plantilla) => {
+    const preguntasConNuevosIds = plantilla.preguntas.map(p => ({
+      ...p,
+      id: Date.now() + Math.random()
+    }));
+    setFormData({
+      ...formData,
+      preguntas: preguntasConNuevosIds
+    });
+    setShowModalPlantillas(false);
+  };
+
+  const guardarPlantilla = () => {
+    if (formData.preguntas.length === 0) {
+      alert('No hay preguntas para guardar como plantilla');
+      return;
+    }
+    const nombrePlantilla = prompt('Ingrese un nombre para la plantilla:');
+    if (!nombrePlantilla) return;
+    
+    const descripcionPlantilla = prompt('Ingrese una descripción breve:');
+    
+    const nuevaPlantilla = {
+      id: Date.now(),
+      nombre: nombrePlantilla,
+      descripcion: descripcionPlantilla || 'Sin descripción',
+      numeroPreguntas: formData.preguntas.length,
+      fechaCreacion: new Date().toISOString().split('T')[0],
+      preguntas: formData.preguntas
+    };
+    
+    plantillasEvaluacion.push(nuevaPlantilla);
+    alert('Plantilla guardada exitosamente');
+  };
+
+  const plantillasFiltradas = plantillasEvaluacion.filter(plantilla =>
+    plantilla.nombre.toLowerCase().includes(searchPlantilla.toLowerCase()) ||
+    plantilla.descripcion.toLowerCase().includes(searchPlantilla.toLowerCase())
+  );
+
   const handleSubmit = (e) => {
     e.preventDefault();
     
@@ -181,6 +225,12 @@ const EvaluacionForm = ({
           codigoAcceso,
           fechaCreacion: new Date().toISOString().split('T')[0]
         };
+        
+        // Guardar como plantilla si está marcado
+        if (guardarComoPlantilla) {
+          guardarPlantilla();
+        }
+        
         onAddEvaluacion(newEvaluacion);
         setFormData({
           capacitacionId: '',
@@ -190,6 +240,7 @@ const EvaluacionForm = ({
           estado: 'Borrador',
           preguntas: [],
         });
+        setGuardarComoPlantilla(false);
       }
     }
   };
@@ -199,6 +250,86 @@ const EvaluacionForm = ({
     : null;
 
   return (
+    <>
+      {/* Modal de Plantillas */}
+      {showModalPlantillas && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-semibold text-gray-800">Plantillas Guardadas</h3>
+                <button
+                  onClick={() => setShowModalPlantillas(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Buscar plantilla por nombre o descripción..."
+                  value={searchPlantilla}
+                  onChange={(e) => setSearchPlantilla(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+                <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+            <div className="flex-1 overflow-y-auto p-6">
+              {plantillasFiltradas.length === 0 ? (
+                <div className="text-center py-12">
+                  <svg className="mx-auto w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <p className="text-gray-500 text-lg">No se encontraron plantillas</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {plantillasFiltradas.map(plantilla => (
+                    <div key={plantilla.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-800 mb-1">{plantilla.nombre}</h4>
+                          <p className="text-sm text-gray-600 mb-2 line-clamp-2">{plantilla.descripcion}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between text-sm mb-3">
+                        <div className="flex items-center gap-4">
+                          <span className="flex items-center text-gray-600">
+                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {plantilla.numeroPreguntas} pregunta{plantilla.numeroPreguntas !== 1 ? 's' : ''}
+                          </span>
+                          <span className="text-gray-500 text-xs">
+                            {new Date(plantilla.fechaCreacion).toLocaleDateString('es-ES')}
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => cargarPlantilla(plantilla)}
+                        className="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                        </svg>
+                        Usar Plantilla
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold text-gray-800">
@@ -308,6 +439,16 @@ const EvaluacionForm = ({
             <div className="flex gap-2">
               <button
                 type="button"
+                onClick={() => setShowModalPlantillas(true)}
+                className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                Ver Plantillas Guardadas
+              </button>
+              <button
+                type="button"
                 onClick={() => handleAddPregunta('opcion-multiple')}
                 className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors text-sm"
               >
@@ -414,6 +555,26 @@ const EvaluacionForm = ({
           )}
         </div>
 
+        {/* Guardar como Plantilla */}
+        {!editingEvaluacion && formData.preguntas.length > 0 && (
+          <div className="border-t border-gray-200 pt-4">
+            <label className="flex items-center space-x-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={guardarComoPlantilla}
+                onChange={(e) => setGuardarComoPlantilla(e.target.checked)}
+                className="w-5 h-5 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+              />
+              <div className="flex-1">
+                <span className="text-sm font-medium text-gray-700">Guardar como Plantilla</span>
+                <p className="text-xs text-gray-500 mt-1">
+                  Las preguntas de esta evaluación se guardarán para reutilizarlas en futuras evaluaciones
+                </p>
+              </div>
+            </label>
+          </div>
+        )}
+
         {/* Vista Previa */}
         {showPreview && formData.preguntas.length > 0 && (
           <div className="border-t pt-6 mt-6">
@@ -486,6 +647,7 @@ const EvaluacionForm = ({
         </div>
       </form>
     </div>
+    </>
   );
 };
 

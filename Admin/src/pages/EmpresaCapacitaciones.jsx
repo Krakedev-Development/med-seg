@@ -173,8 +173,7 @@ const EmpresaCapacitaciones = ({ companies = initialCompanies, employees = initi
           companies={[empresa]}
           actividadesDisponibles={actividadesDisponibles}
           estadosCapacitacion={estadosCapacitacion}
-          empresaId={empresaIdNum}
-        />
+          empresaId={empresaIdNum}          employees={employees}        />
       )}
 
       {/* Filtros y búsqueda */}

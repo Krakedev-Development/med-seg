@@ -111,7 +111,7 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
   return (
     <div className="space-y-3">
       {/* Buscador sticky al inicio */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 sticky top-0 z-30 px-4 py-3">
+      <div className="bg-white border border-gray-200 sticky top-0 z-30 px-4 py-3">
         <div className="flex items-center justify-between gap-4">
           <div className="relative flex-1 max-w-md">
             <input
@@ -162,7 +162,7 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
                       key={col.id}
                       className={`
                         border border-gray-400 px-3 py-2 text-left text-xs font-bold text-gray-800 uppercase bg-gray-200
-                        ${col.sticky ? 'sticky z-20 shadow-sm' : ''}
+                        ${col.sticky ? 'sticky z-20 border-r-2 border-gray-300' : ''}
                       `}
                       style={{ 
                         minWidth: col.width,
@@ -222,7 +222,7 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
                     >
                       {/* Número */}
                       <td 
-                        className="border border-gray-400 px-3 py-2 text-sm text-gray-800 bg-gray-50 sticky z-10 font-medium text-center shadow-sm"
+                        className="border border-gray-400 px-3 py-2 text-sm text-gray-800 bg-gray-50 sticky z-10 font-medium text-center border-r-2 border-gray-300"
                         style={{ left: `${leftNro}px` }}
                       >
                         {index + 1}
@@ -230,7 +230,7 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
 
                       {/* Cédula */}
                       <td 
-                        className="border border-gray-400 px-3 py-2 text-sm text-gray-800 bg-gray-50 sticky z-10 font-medium shadow-sm"
+                        className="border border-gray-400 px-3 py-2 text-sm text-gray-800 bg-gray-50 sticky z-10 font-medium border-r-2 border-gray-300"
                         style={{ left: `${leftCedula}px` }}
                       >
                         {empleado.cedula || empleado.dni || '-'}
@@ -238,7 +238,7 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
 
                       {/* Nombre Completo */}
                       <td 
-                        className="border border-gray-400 px-3 py-2 text-sm text-gray-800 bg-gray-50 sticky z-10 font-medium shadow-sm"
+                        className="border border-gray-400 px-3 py-2 text-sm text-gray-800 bg-gray-50 sticky z-10 font-medium border-r-2 border-gray-300"
                         style={{ left: `${leftNombre}px` }}
                       >
                         {`${empleado.firstName || empleado.names || ''} ${empleado.lastName || empleado.lastNames || ''}`.trim() || '-'}

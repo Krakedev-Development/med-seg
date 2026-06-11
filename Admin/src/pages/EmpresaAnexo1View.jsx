@@ -50,7 +50,7 @@ const EmpresaAnexo1View = ({ companies = initialCompanies }) => {
   if (!empresa) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
           <p className="text-gray-500">Empresa no encontrada</p>
         </div>
       </div>
@@ -86,7 +86,7 @@ const EmpresaAnexo1View = ({ companies = initialCompanies }) => {
   return (
     <div className="space-y-3">
       {/* Header compacto */}
-      <div className="bg-white rounded-lg shadow-sm border-b border-gray-200">
+      <div className="bg-white rounded-lg border border-gray-200">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
             <button

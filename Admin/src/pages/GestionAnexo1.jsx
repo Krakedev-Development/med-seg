@@ -83,7 +83,7 @@ const GestionAnexo1 = ({ companies = initialCompanies }) => {
       </div>
 
       {/* Buscador */}
-      <div className="bg-white rounded-lg shadow-md p-4">
+      <div className="bg-white rounded-lg border border-gray-200 p-4">
         <div className="relative">
           <SearchIcon className="absolute left-3 top-2.5 w-5 h-5 text-gray-400" />
           <input
@@ -97,10 +97,10 @@ const GestionAnexo1 = ({ companies = initialCompanies }) => {
       </div>
 
       {/* Tabla de empresas */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gradient-to-r from-primary to-primary-dark text-white">
+            <thead className="bg-primary text-white">
               <tr>
                 <th className="px-6 py-4 text-left text-sm font-semibold">Empresa</th>
                 <th className="px-6 py-4 text-left text-sm font-semibold">RUC</th>
@@ -165,7 +165,7 @@ const GestionAnexo1 = ({ companies = initialCompanies }) => {
                   <td className="px-6 py-4 text-center">
                     <button
                       onClick={() => navigate(`/anexo1/empresa/${empresa.id}/estado`)}
-                      className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors font-semibold text-sm flex items-center justify-center gap-2 whitespace-nowrap"
+                      className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors font-semibold text-sm flex items-center justify-center gap-2 whitespace-nowrap"
                     >
                       <ChartIcon className="w-4 h-4" />
                       Gestionar
@@ -180,7 +180,7 @@ const GestionAnexo1 = ({ companies = initialCompanies }) => {
 
       {/* Mensaje cuando no hay empresas */}
       {empresasFiltradas.length === 0 && (
-        <div className="bg-white rounded-lg shadow-md p-12 text-center">
+        <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
           <BuildingIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <p className="text-gray-600 text-lg font-medium mb-2">
             {busqueda ? 'No se encontraron empresas' : 'No hay empresas registradas'}

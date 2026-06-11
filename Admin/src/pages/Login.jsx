@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { usuarios } from '../data/usuariosData';
 
 // Iconos simples SVG
 const UserIcon = ({ className }) => (
@@ -73,19 +74,30 @@ const Login = ({ employees, companies, onLogin }) => {
     setError('');
 
     if (tipoUsuario === 'admin') {
-      // Login como administrador con validación
+      // Login como administrador con validación de múltiples usuarios
       if (!usuario || !password) {
         setError('Por favor ingrese usuario y contraseña');
         return;
       }
 
-      if (usuario !== 'admin' || password !== '123') {
-        setError('Usuario o contraseña incorrectos. Usuario: admin, Contraseña: 123');
+      const usuarioEncontrado = usuarios.find(u => 
+        u.usuario === usuario && u.password === password && u.activo
+      );
+
+      if (!usuarioEncontrado) {
+        setError('Usuario o contraseña incorrectos');
         return;
       }
 
       if (onLogin) {
-        onLogin({ tipo: 'admin', nombre: 'Administrador' });
+        onLogin({ 
+          tipo: 'admin', 
+          nombre: usuarioEncontrado.nombre,
+          usuario: usuarioEncontrado.usuario,
+          rol: usuarioEncontrado.rol,
+          id: usuarioEncontrado.id,
+          email: usuarioEncontrado.email
+        });
       }
       navigate('/dashboard');
     } else if (tipoUsuario === 'user') {
@@ -153,11 +165,11 @@ const Login = ({ employees, companies, onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-surface via-secondary-light/40 to-white flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="bg-white border border-gray-200 rounded-lg max-w-md w-full p-8">
         <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <div className="rounded-full overflow-hidden bg-white shadow-lg border-4 border-primary" style={{ width: '96px', height: '96px', minWidth: '96px', minHeight: '96px', padding: '4px', aspectRatio: '1/1' }}>
+          <div className="flex justify-center mb-6">
+            <div className="rounded-lg overflow-hidden bg-white border-2 border-gray-200" style={{ width: '96px', height: '96px', minWidth: '96px', minHeight: '96px', padding: '4px', aspectRatio: '1/1' }}>
               <img 
                 src="/images/Logo.jpg" 
                 alt="MEDI&SEG Logo" 
@@ -166,6 +178,8 @@ const Login = ({ employees, companies, onLogin }) => {
               />
             </div>
           </div>
+          <h1 className="text-2xl font-semibold text-gray-800 mb-1">Iniciar Sesión</h1>
+          <p className="text-sm text-gray-600">Sistema de Gestión SST</p>
         </div>
 
         {/* Selector de tipo de usuario */}
@@ -183,8 +197,8 @@ const Login = ({ employees, companies, onLogin }) => {
               }}
               className={`flex-1 py-2 px-4 rounded-md font-medium transition-colors text-xs ${
                 tipoUsuario === 'admin'
-                  ? 'bg-primary text-white shadow-md'
-                  : 'text-gray-700 hover:bg-gray-200'
+                  ? 'bg-primary text-white'
+                  : 'text-gray-700 hover:bg-gray-100'
               }`}
             >
               Administrador
@@ -201,8 +215,8 @@ const Login = ({ employees, companies, onLogin }) => {
               }}
               className={`flex-1 py-2 px-4 rounded-md font-medium transition-colors text-xs ${
                 tipoUsuario === 'empresa'
-                  ? 'bg-primary text-white shadow-md'
-                  : 'text-gray-700 hover:bg-gray-200'
+                  ? 'bg-primary text-white'
+                  : 'text-gray-700 hover:bg-gray-100'
               }`}
             >
               Empresa
@@ -219,8 +233,8 @@ const Login = ({ employees, companies, onLogin }) => {
               }}
               className={`flex-1 py-2 px-4 rounded-md font-medium transition-colors text-xs ${
                 tipoUsuario === 'user'
-                  ? 'bg-primary text-white shadow-md'
-                  : 'text-gray-700 hover:bg-gray-200'
+                  ? 'bg-primary text-white'
+                  : 'text-gray-700 hover:bg-gray-100'
               }`}
             >
               Trabajador
@@ -383,21 +397,21 @@ const Login = ({ employees, companies, onLogin }) => {
           )}
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
               {error}
             </div>
           )}
 
           <button
             type="submit"
-            className="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-primary-dark transition-colors shadow-md hover:shadow-lg"
+            className="w-full bg-primary text-white py-3 rounded-md font-medium hover:bg-primary-hover transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >
             Iniciar Sesión
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-gray-500">
-          <p>Sistema de Gestión de Seguridad y Salud Ocupacional</p>
+        <div className="mt-6 text-center text-xs text-gray-500">
+          <p>© Medicina & Seguridad</p>
         </div>
       </div>
     </div>

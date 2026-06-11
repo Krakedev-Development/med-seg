@@ -43,6 +43,7 @@ import RepositorioGeneral from './pages/RepositorioGeneral';
 import EmpresaDocumentos from './pages/EmpresaDocumentos';
 import FormulariosDinamicosEmpresa from './pages/FormulariosDinamicosEmpresa';
 import MatrizEmpleados from './pages/MatrizEmpleados';
+import RegistroActividades from './pages/RegistroActividades';
 
 // Componente para redirigir rutas directas del editor a rutas anidadas
 const EditorRedirect = () => {
@@ -517,6 +518,14 @@ function App() {
                         element={
                           <ProtectedRoute>
                             <Settings />
+                          </ProtectedRoute>
+                        } 
+                      />
+                      <Route 
+                        path="/registro-actividades" 
+                        element={
+                          <ProtectedRoute>
+                            <RegistroActividades />
                           </ProtectedRoute>
                         } 
                       />

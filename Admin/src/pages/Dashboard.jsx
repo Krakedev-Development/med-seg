@@ -221,53 +221,52 @@ const Dashboard = ({ companies = initialCompanies, employees = initialEmployees 
       title: 'Total de Empresas',
       value: dashboardData.totalEmpresas,
       icon: BuildingIcon,
-      color: 'bg-blue-500',
-      bgColor: 'bg-blue-50'
+      color: 'bg-info',
+      bgColor: 'bg-gray-50'
     },
     {
       title: 'Total Trabajadores',
       value: dashboardData.totalTrabajadores,
       icon: UsersIcon,
-      color: 'bg-green-500',
-      bgColor: 'bg-green-50'
+      color: 'bg-success',
+      bgColor: 'bg-gray-50'
     },
     {
       title: 'Total Inspecciones Anexo 1',
       value: dashboardData.totalInspecciones,
       icon: ClipboardIcon,
-      color: 'bg-purple-500',
-      bgColor: 'bg-purple-50'
+      color: 'bg-secondary',
+      bgColor: 'bg-gray-50'
     },
     {
       title: 'Cumplimiento Promedio',
       value: `${dashboardData.cumplimientoPromedio}%`,
       icon: ChartIcon,
-      color: dashboardData.cumplimientoPromedio >= 80 ? 'bg-green-500' : 
-             dashboardData.cumplimientoPromedio >= 50 ? 'bg-yellow-500' : 'bg-red-500',
-      bgColor: dashboardData.cumplimientoPromedio >= 80 ? 'bg-green-50' : 
-               dashboardData.cumplimientoPromedio >= 50 ? 'bg-yellow-50' : 'bg-red-50'
+      color: dashboardData.cumplimientoPromedio >= 80 ? 'bg-success' : 
+             dashboardData.cumplimientoPromedio >= 50 ? 'bg-warning' : 'bg-error',
+      bgColor: 'bg-gray-50'
     },
     {
       title: 'Evidencias Esta Semana',
       value: dashboardData.evidenciasEstaSemana,
       icon: FileIcon,
-      color: 'bg-indigo-500',
-      bgColor: 'bg-indigo-50'
+      color: 'bg-primary',
+      bgColor: 'bg-gray-50'
     },
     {
       title: 'Evaluaciones Respondidas',
       value: dashboardData.evaluacionesRespondidasSemana,
       icon: CheckCircleIcon,
-      color: 'bg-teal-500',
-      bgColor: 'bg-teal-50'
+      color: 'bg-success',
+      bgColor: 'bg-gray-50'
     },
   ];
 
   const getEstadoBadge = (estado) => {
     const estados = {
-      'Próxima en 24 horas': 'bg-red-100 text-red-800 border-red-300',
-      'Próximas en 72 horas': 'bg-orange-100 text-orange-800 border-orange-300',
-      'Próximas este mes': 'bg-blue-100 text-blue-800 border-blue-300'
+      'Próxima en 24 horas': 'bg-error text-white border-error',
+      'Próximas en 72 horas': 'bg-warning text-white border-warning',
+      'Próximas este mes': 'bg-info text-white border-info'
     };
     return estados[estado] || 'bg-gray-100 text-gray-800 border-gray-300';
   };
@@ -299,7 +298,7 @@ const Dashboard = ({ companies = initialCompanies, employees = initialEmployees 
           return (
             <div
               key={idx}
-              className={`${stat.bgColor} rounded-xl shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow`}
+              className={`${stat.bgColor} rounded-lg p-6 border border-gray-200 hover:border-gray-300 transition-colors`}
             >
               <div className="flex items-center justify-between">
                 <div className="flex-1">
@@ -318,7 +317,7 @@ const Dashboard = ({ companies = initialCompanies, employees = initialEmployees 
       {/* Grid Principal: 2 columnas */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Calendario de Capacitaciones Próximas */}
-        <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+        <div className="bg-white rounded-lg p-6 border border-gray-200">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
               <CalendarIcon className="w-6 h-6 text-primary" />
@@ -326,7 +325,7 @@ const Dashboard = ({ companies = initialCompanies, employees = initialEmployees 
             </h2>
             <button
               onClick={() => navigate('/anexo1')}
-              className="text-sm text-primary hover:text-primary-dark font-medium"
+              className="text-sm text-primary hover:text-primary-hover font-medium"
             >
               Ver todas
             </button>
@@ -375,7 +374,7 @@ const Dashboard = ({ companies = initialCompanies, employees = initialEmployees 
         </div>
 
         {/* Evaluaciones Abiertas */}
-        <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+        <div className="bg-white rounded-lg p-6 border border-gray-200">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
               <ClipboardIcon className="w-6 h-6 text-primary" />
@@ -383,7 +382,7 @@ const Dashboard = ({ companies = initialCompanies, employees = initialEmployees 
             </h2>
             <button
               onClick={() => navigate('/anexo1')}
-              className="text-sm text-primary hover:text-primary-dark font-medium"
+              className="text-sm text-primary hover:text-primary-hover font-medium"
             >
               Ver todas
             </button>
@@ -454,9 +453,9 @@ const Dashboard = ({ companies = initialCompanies, employees = initialEmployees 
                   <td className="px-4 py-3 text-center">
                     {resultado.calificacion !== null ? (
                       <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                        resultado.calificacion >= 7 ? 'bg-green-100 text-green-800' :
-                        resultado.calificacion >= 5 ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-red-100 text-red-800'
+                        resultado.calificacion >= 7 ? 'bg-success text-white' :
+                        resultado.calificacion >= 5 ? 'bg-warning text-white' :
+                        'bg-error text-white'
                       }`}>
                         {resultado.calificacion}/10
                       </span>
@@ -475,7 +474,7 @@ const Dashboard = ({ companies = initialCompanies, employees = initialEmployees 
                           navigate(`/anexo1/empresa/${empresa.id}/resultados`);
                         }
                       }}
-                      className="text-primary hover:text-primary-dark text-sm font-medium"
+                      className="text-primary hover:text-primary-hover text-sm font-medium"
                     >
                       Ver detalle
                     </button>
@@ -490,7 +489,7 @@ const Dashboard = ({ companies = initialCompanies, employees = initialEmployees 
       {/* Grid Inferior: Gráficos y Actividad */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Gráfico 1: Capacitaciones por Mes */}
-        <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+        <div className="bg-white rounded-lg p-6 border border-gray-200">
           <h2 className="text-xl font-bold text-gray-800 mb-4">Capacitaciones Programadas</h2>
           <div className="h-64 flex items-end justify-between gap-2">
             {dashboardData.capacitacionesPorMes.map((item, idx) => {
@@ -500,7 +499,7 @@ const Dashboard = ({ companies = initialCompanies, employees = initialEmployees 
                 <div key={idx} className="flex-1 flex flex-col items-center">
                   <div className="w-full flex items-end justify-center" style={{ height: '200px' }}>
                     <div
-                      className="w-full bg-gradient-to-t from-primary to-primary-dark rounded-t-lg hover:opacity-80 transition-opacity cursor-pointer"
+                      className="w-full bg-primary rounded-t-lg hover:bg-primary-hover transition-colors cursor-pointer"
                       style={{ height: `${height}%`, minHeight: '8px' }}
                       title={`${item.cantidad} capacitaciones`}
                     ></div>
@@ -514,7 +513,7 @@ const Dashboard = ({ companies = initialCompanies, employees = initialEmployees 
         </div>
 
         {/* Gráfico 2: Cumplimiento Promedio */}
-        <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+        <div className="bg-white rounded-lg p-6 border border-gray-200">
           <h2 className="text-xl font-bold text-gray-800 mb-4">Cumplimiento Promedio Anexo 1</h2>
           <div className="h-64 flex items-end justify-between gap-2">
             {dashboardData.cumplimientoPorMes.map((item, idx) => {
@@ -523,10 +522,10 @@ const Dashboard = ({ companies = initialCompanies, employees = initialEmployees 
                 <div key={idx} className="flex-1 flex flex-col items-center">
                   <div className="w-full flex items-end justify-center" style={{ height: '200px' }}>
                     <div
-                      className={`w-full rounded-t-lg hover:opacity-80 transition-opacity cursor-pointer ${
-                        height >= 80 ? 'bg-gradient-to-t from-green-500 to-green-600' :
-                        height >= 50 ? 'bg-gradient-to-t from-yellow-500 to-yellow-600' :
-                        'bg-gradient-to-t from-red-500 to-red-600'
+                      className={`w-full rounded-t-lg transition-colors cursor-pointer ${
+                        height >= 80 ? 'bg-success' :
+                        height >= 50 ? 'bg-warning' :
+                        'bg-error'
                       }`}
                       style={{ height: `${height}%`, minHeight: '8px' }}
                       title={`${item.porcentaje}%`}
@@ -541,7 +540,7 @@ const Dashboard = ({ companies = initialCompanies, employees = initialEmployees 
         </div>
 
         {/* Actividad Reciente */}
-        <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+        <div className="bg-white rounded-lg p-6 border border-gray-200">
           <h2 className="text-xl font-bold text-gray-800 mb-4">Actividad Reciente</h2>
           <div className="space-y-4 max-h-64 overflow-y-auto">
             {dashboardData.actividadReciente.map((actividad, idx) => (

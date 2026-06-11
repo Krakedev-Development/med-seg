@@ -65,6 +65,12 @@ const Settings = () => (
   </svg>
 );
 
+const ActivityLog = () => (
+  <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+  </svg>
+);
+
 const Sidebar = () => {
   const location = useLocation();
 
@@ -75,6 +81,7 @@ const Sidebar = () => {
     { path: '/establecimientos-salud', icon: Hospital, label: 'Establecimientos de Salud' },
     { path: '/profesionales', icon: UserCircle, label: 'Profesionales' },
     { path: '/repositorio', icon: FolderOpen, label: 'Repositorio General' },
+    { path: '/registro-actividades', icon: ActivityLog, label: 'Registro de Actividades' },
     { path: '/settings', icon: Settings, label: 'Configuración' }
   ];
 
@@ -89,9 +96,9 @@ const Sidebar = () => {
         e.currentTarget.style.width = '60px';
       }}
     >
-      <div className="p-4 border-b border-primary-dark/40 whitespace-nowrap overflow-hidden">
+      <div className="p-4 border-b border-gray-600 whitespace-nowrap overflow-hidden">
         <div className="flex justify-center items-center mb-3">
-          <div className="rounded-full overflow-hidden bg-white shadow-md border-2 border-primary-dark mx-auto" style={{ width: '48px', height: '48px', minWidth: '48px', minHeight: '48px', padding: '2px', aspectRatio: '1/1' }}>
+          <div className="rounded-lg overflow-hidden bg-white border border-gray-200 mx-auto" style={{ width: '48px', height: '48px', minWidth: '48px', minHeight: '48px', padding: '2px', aspectRatio: '1/1' }}>
             <img 
               src="/images/Logo.jpg" 
               alt="MEDI&SEG Logo" 
@@ -101,22 +108,22 @@ const Sidebar = () => {
           </div>
         </div>
         <div className="text-center group-hover:text-left transition-all hidden group-hover:block">
-          <h1 className="text-lg font-bold truncate">Medicina & Seguridad</h1>
-          <p className="text-xs text-secondary-dark/70 mt-1 truncate">Panel Administrativo</p>
+          <h1 className="text-base font-semibold truncate text-white">Medicina & Seguridad</h1>
+          <p className="text-xs text-gray-200 mt-1 truncate">Panel Administrativo</p>
         </div>
       </div>
       <nav className="mt-4 flex flex-col space-y-1 px-2">
         {menuItems.map((item) => {
           const Icon = item.icon;
-          const isActive = location.pathname === item.path;
+          const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
           return (
             <Link
               key={item.path}
               to={item.path}
-              className={`flex items-center gap-3 px-3 py-3 rounded transition-colors whitespace-nowrap overflow-hidden ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors whitespace-nowrap overflow-hidden ${
                 isActive
-                  ? 'bg-primary-dark text-white'
-                  : 'hover:bg-primary-dark/90'
+                  ? 'bg-secondary text-white'
+                  : 'text-white hover:bg-gray-600'
               }`}
             >
               <Icon />

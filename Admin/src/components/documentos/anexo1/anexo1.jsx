@@ -334,7 +334,7 @@ function FilaChecklist({ item, value, onChange, isFirstRow, totalRows, categoria
       {isFirstRow && categoriaGeneral && (
         <td
           rowSpan={totalRows}
-          className="border-2 border-gray-300 p-4 text-sm leading-tight text-center align-middle w-[15%] font-bold bg-primary/15 text-primary-dark"
+          className="border-2 border-gray-300 p-4 text-sm leading-tight text-center align-middle w-[15%] font-bold bg-gray-100 text-primary"
           style={{ verticalAlign: 'middle' }}
         >
           <div className="flex items-center justify-center h-full text-center">
@@ -418,15 +418,15 @@ function SeccionSST({
 
   return (
     <section
-      className="mb-10 pb-8 break-inside-avoid bg-white rounded-xl shadow-xl p-8 border-2 border-gray-300"
+      className="mb-10 pb-8 break-inside-avoid bg-white rounded-xl border border-gray-200 p-8 border-2 border-gray-300"
       style={{ pageBreakInside: "avoid" }}
     >
-      <div className="mb-6 pb-4 border-b-4 border-primary bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-4">
-        <h2 className="text-xl font-bold uppercase text-center mb-3 text-primary-dark tracking-wide">
+      <div className="mb-6 pb-4 border-b-4 border-primary bg-gray-100 rounded-lg p-4">
+        <h2 className="text-xl font-bold uppercase text-center mb-3 text-primary tracking-wide">
           {seccion.titulo}
         </h2>
         {seccion.subtituloNorma && (
-          <p className="text-sm text-center text-gray-700 italic bg-white/50 rounded px-4 py-2">
+          <p className="text-sm text-center text-gray-700 italic bg-white rounded px-4 py-2 border border-gray-200">
             {seccion.subtituloNorma}
           </p>
         )}
@@ -448,7 +448,7 @@ function SeccionSST({
         <div className="overflow-x-auto rounded-lg border-2 border-gray-300 shadow-lg">
           <table className="w-full border-collapse text-sm">
             <thead>
-              <tr className="bg-gradient-to-r from-primary via-primary-dark to-secondary text-white">
+              <tr className="bg-primary text-white">
                 <th className="border-2 border-white p-3 text-xs font-bold w-[15%] text-left">Referencia Legal</th>
                 <th className="border-2 border-white p-3 text-xs font-bold w-[15%] text-center">Organización de seguridad y salud en el trabajo</th>
                 <th className="border-2 border-white p-3 text-sm font-bold w-[5%] text-center">#</th>
@@ -486,9 +486,9 @@ export default function ListaVerificacionSST() {
   const [respuestas, setRespuestas] = useState({});
 
   return (
-    <div className="max-w-7xl mx-auto bg-gradient-to-br from-gray-50 to-white text-gray-900 p-10 text-base leading-relaxed rounded-2xl shadow-2xl">
+    <div className="max-w-7xl mx-auto bg-white text-gray-900 p-10 text-base leading-relaxed rounded-lg border border-gray-200">
       {/* Encabezado */}
-      <header className="mb-8 pb-6 border-b-4 border-primary bg-gradient-to-r from-primary via-primary-dark to-secondary text-white rounded-t-xl p-8 -m-10 mb-8">
+      <header className="mb-8 pb-6 border-b-4 border-primary bg-primary text-white rounded-t-lg p-8 -m-10 mb-8">
         <div className="flex items-center justify-center gap-4 mb-4">
           <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -498,7 +498,7 @@ export default function ListaVerificacionSST() {
             SEGURIDAD Y SALUD EN EL TRABAJO
           </h1>
         </div>
-        <p className="text-sm text-center mt-3 text-white/90 bg-white/10 rounded-lg px-6 py-3 inline-block font-medium">
+        <p className="text-sm text-center mt-3 text-white bg-gray-700 rounded-lg px-6 py-3 inline-block font-medium">
           MDT-(SIGLAS DE LA DIRECCIÓN REGIONAL)-(INICIALES)-(AÑO)-(NÚMERO DE
           INSPECCIÓN)
         </p>
@@ -518,11 +518,11 @@ export default function ListaVerificacionSST() {
 
       {/* Observaciones finales y firmas */}
       <section
-        className="mt-10 pt-8 border-t-4 border-gray-400 break-inside-avoid bg-white rounded-xl shadow-xl p-8"
+        className="mt-10 pt-8 border-t-4 border-gray-400 break-inside-avoid bg-white rounded-xl border border-gray-200 p-8"
         style={{ pageBreakInside: "avoid" }}
       >
-        <div className="mb-6 pb-4 border-b-4 border-primary bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-4">
-          <h3 className="text-lg font-bold uppercase text-primary-dark mb-3 flex items-center gap-3">
+        <div className="mb-6 pb-4 border-b-4 border-primary bg-gray-100 rounded-lg p-4">
+          <h3 className="text-lg font-bold uppercase text-primary mb-3 flex items-center gap-3">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
@@ -536,19 +536,19 @@ export default function ListaVerificacionSST() {
 
         <div className="grid grid-cols-2 gap-8 mt-12 text-sm">
           <div className="text-center bg-blue-50 rounded-lg p-8 border-2 border-blue-200">
-            <div className="font-bold mb-3 text-primary-dark text-base">MINISTERIO DEL TRABAJO</div>
+            <div className="font-bold mb-3 text-primary text-base">MINISTERIO DEL TRABAJO</div>
             <div className="border-t-2 border-gray-400 w-3/4 mx-auto mt-12 mb-3" />
             <div className="text-gray-700 font-medium">NOMBRE Y FIRMA</div>
           </div>
           <div className="text-center bg-green-50 rounded-lg p-8 border-2 border-green-200">
-            <div className="font-bold mb-3 text-primary-dark text-base">EMPRESA / INSTITUCIÓN</div>
+            <div className="font-bold mb-3 text-primary text-base">EMPRESA / INSTITUCIÓN</div>
             <div className="border-t-2 border-gray-400 w-3/4 mx-auto mt-12 mb-3" />
             <div className="text-gray-700 font-medium">NOMBRE Y FIRMA DE QUIÉN RECIBE EL ACTA</div>
           </div>
         </div>
 
         <div className="mt-10 p-6 bg-gray-50 rounded-lg border-l-4 border-primary text-sm leading-relaxed">
-          <p className="font-bold mb-4 text-primary-dark text-base uppercase flex items-center gap-2">
+          <p className="font-bold mb-4 text-primary text-base uppercase flex items-center gap-2">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
             </svg>

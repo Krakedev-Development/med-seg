@@ -154,7 +154,7 @@ const EmpresaAnexo1Estado = ({ companies = initialCompanies }) => {
   if (!empresa) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
           <p className="text-gray-500">Empresa no encontrada</p>
         </div>
       </div>
@@ -164,7 +164,7 @@ const EmpresaAnexo1Estado = ({ companies = initialCompanies }) => {
   return (
     <div className="space-y-6">
       {/* Card Principal: Datos de la Empresa */}
-      <div className="bg-gradient-to-r from-primary to-primary-dark rounded-xl shadow-lg p-8 text-white">
+      <div className="bg-primary rounded-lg border border-gray-200 p-6 text-white">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-4 mb-4">
@@ -179,14 +179,14 @@ const EmpresaAnexo1Estado = ({ companies = initialCompanies }) => {
               )}
               <div>
                 <h2 className="text-3xl font-bold mb-2">{empresa.name}</h2>
-                <div className="flex flex-wrap gap-4 text-white/90 text-sm">
+                <div className="flex flex-wrap gap-4 text-white text-sm">
                   <div className="flex items-center gap-2">
                     <BuildingIcon className="w-5 h-5" />
                     <span>RUC: {empresa.ruc}</span>
                   </div>
                   {empresa.tipoActividad && (
                     <div className="flex items-center gap-2">
-                      <span className="px-3 py-1 bg-white/20 rounded-full">
+                      <span className="px-3 py-1 bg-gray-800 rounded-full">
                         {empresa.tipoActividad}
                       </span>
                     </div>
@@ -207,36 +207,36 @@ const EmpresaAnexo1Estado = ({ companies = initialCompanies }) => {
         </div>
         
         {/* Barra de Progreso del Anexo 1 */}
-        <div className="mt-6 bg-white/10 rounded-lg p-6 backdrop-blur-sm">
+        <div className="mt-6 bg-gray-800 rounded-md p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-xl font-bold mb-1">Cumplimiento del Anexo 1</h3>
-              <p className="text-white/80 text-sm">
+              <h3 className="text-xl font-bold mb-1 text-white">Cumplimiento del Anexo 1</h3>
+              <p className="text-gray-200 text-sm">
                 {datosProgreso.itemsCumple} de {datosProgreso.totalItemsAplicables} ítems cumplidos
               </p>
             </div>
             <div className="text-right">
-              <p className="text-4xl font-bold">{datosProgreso.porcentajeCumplimiento}%</p>
-              <p className="text-white/80 text-xs">Cumplimiento total</p>
+              <p className="text-4xl font-bold text-white">{datosProgreso.porcentajeCumplimiento}%</p>
+              <p className="text-gray-200 text-xs">Cumplimiento total</p>
             </div>
           </div>
           
           {/* Barra de progreso visual */}
-          <div className="w-full h-8 bg-white/20 rounded-full overflow-hidden flex mb-4">
+          <div className="w-full h-8 bg-gray-700 rounded-full overflow-hidden flex mb-4">
             <div 
-              className="bg-green-500 h-full flex items-center justify-center text-white text-xs font-semibold"
+              className="bg-success h-full flex items-center justify-center text-white text-xs font-semibold"
               style={{ width: `${(datosProgreso.itemsCumple / datosProgreso.totalItemsAplicables) * 100}%` }}
             >
               {datosProgreso.itemsCumple} Cumple
             </div>
             <div 
-              className="bg-yellow-500 h-full flex items-center justify-center text-white text-xs font-semibold"
+              className="bg-warning h-full flex items-center justify-center text-white text-xs font-semibold"
               style={{ width: `${(datosProgreso.itemsConObservaciones / datosProgreso.totalItemsAplicables) * 100}%` }}
             >
               {datosProgreso.itemsConObservaciones} Observado
             </div>
             <div 
-              className="bg-red-500 h-full flex items-center justify-center text-white text-xs font-semibold"
+              className="bg-error h-full flex items-center justify-center text-white text-xs font-semibold"
               style={{ width: `${(datosProgreso.itemsNoCumple / datosProgreso.totalItemsAplicables) * 100}%` }}
             >
               {datosProgreso.itemsNoCumple} No Cumple
@@ -245,28 +245,28 @@ const EmpresaAnexo1Estado = ({ companies = initialCompanies }) => {
           
           {/* Resumen de ítems */}
           <div className="grid grid-cols-4 gap-4 text-center">
-            <div className="bg-white/10 rounded-lg p-3">
-              <p className="text-2xl font-bold">{datosProgreso.totalItemsAplicables}</p>
-              <p className="text-xs text-white/80">Ítems Aplicables</p>
+            <div className="bg-gray-700 rounded-md p-3">
+              <p className="text-2xl font-bold text-white">{datosProgreso.totalItemsAplicables}</p>
+              <p className="text-xs text-gray-200">Ítems Aplicables</p>
             </div>
-            <div className="bg-green-500/30 rounded-lg p-3">
-              <p className="text-2xl font-bold text-green-200">{datosProgreso.itemsCumple}</p>
-              <p className="text-xs text-white/80">Cumple</p>
+            <div className="bg-success rounded-md p-3">
+              <p className="text-2xl font-bold text-white">{datosProgreso.itemsCumple}</p>
+              <p className="text-xs text-white">Cumple</p>
             </div>
-            <div className="bg-yellow-500/30 rounded-lg p-3">
-              <p className="text-2xl font-bold text-yellow-200">{datosProgreso.itemsConObservaciones}</p>
-              <p className="text-xs text-white/80">Observado</p>
+            <div className="bg-warning rounded-md p-3">
+              <p className="text-2xl font-bold text-white">{datosProgreso.itemsConObservaciones}</p>
+              <p className="text-xs text-white">Observado</p>
             </div>
-            <div className="bg-red-500/30 rounded-lg p-3">
-              <p className="text-2xl font-bold text-red-200">{datosProgreso.itemsNoCumple}</p>
-              <p className="text-xs text-white/80">No Cumple</p>
+            <div className="bg-error rounded-md p-3">
+              <p className="text-2xl font-bold text-white">{datosProgreso.itemsNoCumple}</p>
+              <p className="text-xs text-white">No Cumple</p>
             </div>
           </div>
         </div>
       </div>
       
       {/* Bloque: ¿Qué falta por cumplir? */}
-      <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-red-100">
+      <div className="bg-white rounded-lg p-6 border border-red-200">
         <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
           <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -275,7 +275,7 @@ const EmpresaAnexo1Estado = ({ companies = initialCompanies }) => {
         </h3>
         <div className="space-y-2">
           {itemsFaltantes.map((item, idx) => (
-            <div key={idx} className="flex items-start gap-3 p-3 bg-red-50 rounded-lg border-l-4 border-red-500">
+            <div key={idx} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border-l-4 border-error">
               <span className="px-2 py-1 bg-red-600 text-white text-xs font-bold rounded flex-shrink-0">
                 {item.codigo}
               </span>
@@ -287,16 +287,16 @@ const EmpresaAnexo1Estado = ({ companies = initialCompanies }) => {
       
       {/* Información de ítems dinámicos */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-blue-100">
-          <h3 className="text-lg font-bold text-gray-800 mb-2">Ítems Aplicables (Dinámicos)</h3>
-          <p className="text-4xl font-bold text-blue-600 mb-2">{totalItemsAplicables}</p>
+        <div className="bg-white rounded-lg p-6 border border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">Ítems Aplicables (Dinámicos)</h3>
+          <p className="text-4xl font-bold text-primary mb-2">{totalItemsAplicables}</p>
           <p className="text-sm text-gray-600">
             Total de ítems que aplican para esta empresa según su configuración
           </p>
         </div>
         
-        <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-gray-200">
-          <h3 className="text-lg font-bold text-gray-800 mb-2">Ítems Ocultos por No Aplicar</h3>
+        <div className="bg-white rounded-lg p-6 border border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">Ítems Ocultos por No Aplicar</h3>
           <p className="text-4xl font-bold text-gray-500 mb-2">{itemsOcultos}</p>
           <p className="text-sm text-gray-600">
             Ítems que no aplican para esta empresa y no se muestran en el checklist
@@ -307,43 +307,43 @@ const EmpresaAnexo1Estado = ({ companies = initialCompanies }) => {
       {/* Grid de Cards Informativos */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Número de Empleados */}
-        <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-blue-100 hover:shadow-xl transition-all">
+        <div className="bg-white rounded-lg p-6 border border-gray-200 hover:border-primary transition-colors">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center">
-              <UsersIcon className="w-7 h-7 text-blue-600" />
+            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+              <UsersIcon className="w-6 h-6 text-primary" />
             </div>
           </div>
           <p className="text-sm text-gray-600 mb-2">Número de Empleados</p>
-          <p className="text-5xl font-bold text-blue-600 mb-2">{empleados.length}</p>
+          <p className="text-4xl font-bold text-primary mb-2">{empleados.length}</p>
           <p className="text-xs text-gray-500">Trabajadores activos</p>
         </div>
 
         {/* Documentos Realizados */}
-        <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-green-100 hover:shadow-xl transition-all">
+        <div className="bg-white rounded-lg p-6 border border-gray-200 hover:border-success transition-colors">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center">
-              <DocumentIcon className="w-7 h-7 text-green-600" />
+            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+              <DocumentIcon className="w-6 h-6 text-success" />
             </div>
           </div>
           <p className="text-sm text-gray-600 mb-2">Documentos Realizados</p>
-          <p className="text-5xl font-bold text-green-600 mb-2">{documentosRealizados}</p>
+          <p className="text-4xl font-bold text-success mb-2">{documentosRealizados}</p>
           <p className="text-xs text-gray-500">Total de documentos</p>
         </div>
 
         {/* Capacitaciones */}
-        <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-purple-100 hover:shadow-xl transition-all">
+        <div className="bg-white rounded-lg p-6 border border-gray-200 hover:border-secondary transition-colors">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center">
-              <BookOpenIcon className="w-7 h-7 text-purple-600" />
+            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+              <BookOpenIcon className="w-6 h-6 text-secondary" />
             </div>
             {capacitacionesEmpresa.length > 0 && (
-              <span className="px-3 py-1 bg-purple-500 text-white rounded-full text-xs font-bold">
+              <span className="px-3 py-1 bg-secondary text-white rounded-md text-xs font-semibold">
                 {capacitacionesEmpresa.filter(c => c.estado === 'En curso').length > 0 ? 'En Curso' : 'Programadas'}
               </span>
             )}
           </div>
           <p className="text-sm text-gray-600 mb-2">Capacitaciones</p>
-          <p className="text-5xl font-bold text-purple-600 mb-2">{capacitacionesEmpresa.length}</p>
+          <p className="text-4xl font-bold text-secondary mb-2">{capacitacionesEmpresa.length}</p>
           <p className="text-xs text-gray-500">
             {capacitacionesEmpresa.length === 0 
               ? 'Sin capacitaciones activas'
@@ -355,20 +355,20 @@ const EmpresaAnexo1Estado = ({ companies = initialCompanies }) => {
         </div>
 
         {/* Evaluaciones */}
-        <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-orange-100 hover:shadow-xl transition-all">
+        <div className="bg-white rounded-lg p-6 border border-gray-200 hover:border-warning transition-colors">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-14 h-14 bg-orange-100 rounded-xl flex items-center justify-center">
-              <ClipboardCheckIcon className="w-7 h-7 text-orange-600" />
+            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
+              <ClipboardCheckIcon className="w-6 h-6 text-warning" />
             </div>
             {evaluacionesEmpresa.disponibles > 0 && (
-              <span className="px-3 py-1 bg-orange-500 text-white rounded-full text-xs font-bold">
+              <span className="px-3 py-1 bg-warning text-white rounded-md text-xs font-semibold">
                 Disponibles
               </span>
             )}
           </div>
           <p className="text-sm text-gray-600 mb-2">Evaluaciones</p>
           <div className="space-y-1">
-            <p className="text-3xl font-bold text-orange-600">
+            <p className="text-3xl font-bold text-warning">
               {evaluacionesEmpresa.disponibles}
             </p>
             {evaluacionesEmpresa.completadas > 0 && (
@@ -397,9 +397,9 @@ const EmpresaAnexo1Estado = ({ companies = initialCompanies }) => {
 
       {/* Detalle de Capacitaciones */}
       {capacitacionesEmpresa.length > 0 && (
-        <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-gray-100">
-          <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <BookOpenIcon className="w-6 h-6 text-purple-600" />
+        <div className="bg-white rounded-lg p-6 border border-gray-200">
+          <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <BookOpenIcon className="w-6 h-6 text-secondary" />
             Capacitaciones Activas
           </h3>
           <div className="space-y-3">
@@ -431,24 +431,24 @@ const EmpresaAnexo1Estado = ({ companies = initialCompanies }) => {
 
       {/* Detalle de Evaluaciones */}
       {evaluacionesEmpresa.disponibles > 0 && (
-        <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-gray-100">
-          <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <ClipboardCheckIcon className="w-6 h-6 text-orange-600" />
+        <div className="bg-white rounded-lg p-6 border border-gray-200">
+          <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <ClipboardCheckIcon className="w-6 h-6 text-warning" />
             Evaluaciones Disponibles
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-gradient-to-br from-orange-50 to-white rounded-lg p-4 border border-orange-200">
+            <div className="bg-gray-50 rounded-md p-4 border border-warning">
               <p className="text-sm text-gray-600 mb-1">Total Disponibles</p>
-              <p className="text-3xl font-bold text-orange-600">{evaluacionesEmpresa.disponibles}</p>
+              <p className="text-3xl font-bold text-warning">{evaluacionesEmpresa.disponibles}</p>
             </div>
-            <div className="bg-gradient-to-br from-green-50 to-white rounded-lg p-4 border border-green-200">
+            <div className="bg-gray-50 rounded-md p-4 border border-success">
               <p className="text-sm text-gray-600 mb-1">Completadas</p>
-              <p className="text-3xl font-bold text-green-600">{evaluacionesEmpresa.completadas}</p>
+              <p className="text-3xl font-bold text-success">{evaluacionesEmpresa.completadas}</p>
             </div>
             {evaluacionesEmpresa.promedioPuntaje > 0 && (
-              <div className="bg-gradient-to-br from-blue-50 to-white rounded-lg p-4 border border-blue-200">
+              <div className="bg-gray-50 rounded-md p-4 border border-info">
                 <p className="text-sm text-gray-600 mb-1">Promedio de Puntaje</p>
-                <p className="text-3xl font-bold text-blue-600">{evaluacionesEmpresa.promedioPuntaje}%</p>
+                <p className="text-3xl font-bold text-info">{evaluacionesEmpresa.promedioPuntaje}%</p>
               </div>
             )}
           </div>
