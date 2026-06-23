@@ -266,7 +266,7 @@ function App() {
                           path="matriz-empleados" 
                           element={
                             <ProtectedRoute>
-                              <MatrizEmpleados companies={companies} employees={employees} />
+                              <MatrizEmpleados companies={companies} employees={employees} setEmployees={setEmployees} />
                             </ProtectedRoute>
                           } 
                         />
