@@ -1,13 +1,19 @@
-import { useState, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useState, useMemo, Fragment } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { initialCompanies } from '../data/companiesData';
 import { initialEmployees } from '../data/employeesData';
-import { getDocumentosByEmpresa } from '../data/documentosDinamicosData';
+import { getDocumentosByEmpresa, documentosDinamicos } from '../data/documentosDinamicosData';
+import { documentoTemplates } from '../data/documentoTemplates';
 
 const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmployees, setEmployees }) => {
   const { empresaId } = useParams();
+  const navigate = useNavigate();
   const [busqueda, setBusqueda] = useState('');
   
+  // Accordion row state
+  const [filaExpandida, setFilaExpandida] = useState(null); // ID del empleado expandido
+  const [pestanaActiva, setPestanaActiva] = useState('clinicos'); // 'clinicos' | 'documentos' | 'nuevo_doc'
+
   // Modals visibility
   const [mostrarModalAgregar, setMostrarModalAgregar] = useState(false);
   const [mostrarModalIess, setMostrarModalIess] = useState(false);
@@ -40,15 +46,19 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
     return employees.filter(e => e.companyId === empresaIdNum);
   }, [empresaIdNum, employees]);
 
+  // Obtener todos los documentos dinámicos de esta empresa
+  const todosDocumentos = useMemo(() => {
+    return getDocumentosByEmpresa(empresaIdNum);
+  }, [empresaIdNum, employees, documentosDinamicos.length]);
+
   // Obtener documentos dinámicos de fichas médicas
   const documentosFichasMedicas = useMemo(() => {
-    const todosDocumentos = getDocumentosByEmpresa(empresaIdNum);
     return todosDocumentos.filter(doc => 
       doc.tipo === 'ficha-medica' || 
       doc.tipo === 'Ficha Médica' ||
       (doc.datos && doc.datos.tipo === 'ficha-medica')
     );
-  }, [empresaIdNum]);
+  }, [todosDocumentos]);
 
   // Filtrar empleados por búsqueda
   const empleadosFiltrados = useMemo(() => {
@@ -392,6 +402,45 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
     }
   };
 
+  // Navegar para crear un nuevo documento dinámico usando plantilla
+  const handleCrearNuevoDocumento = (template, empleado) => {
+    navigate('/formularios/crear', {
+      state: {
+        empresa: empresa,
+        empleado: empleado,
+        plantilla: template,
+        tipo: template.categoria
+      }
+    });
+  };
+
+  // Navegar para editar un documento dinámico existente
+  const handleEditarDocumento = (doc, empleado) => {
+    let tipoUpper = 'OTROS';
+    if (doc.tipo === 'ficha-medica' || doc.tipo === 'Ficha Médica') tipoUpper = 'FICHA MÉDICA';
+    else if (doc.tipo === 'induccion' || doc.tipo === 'Inducción') tipoUpper = 'INDUCCIÓN';
+    else if (doc.tipo === 'inspeccion' || doc.tipo === 'Inspección') tipoUpper = 'INSPECCIONES';
+    
+    navigate('/formularios/crear', {
+      state: {
+        empresa: empresa,
+        empleado: empleado,
+        tipo: tipoUpper,
+        documento: doc
+      }
+    });
+  };
+
+  // Toggle de fila de acordeón
+  const toggleFila = (empleadoId) => {
+    if (filaExpandida === empleadoId) {
+      setFilaExpandida(null);
+    } else {
+      setFilaExpandida(empleadoId);
+      setPestanaActiva('clinicos'); // Reset a la primera pestaña al expandir
+    }
+  };
+
   if (!empresa) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -446,7 +495,7 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
               </svg>
             </div>
             
-            {/* Botones de acción solicitados */}
+            {/* Botones de acción */}
             <button
               onClick={() => setMostrarModalAgregar(true)}
               className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-primary hover:bg-primary-hover rounded-lg shadow-sm transition-all transform hover:scale-[1.02]"
@@ -529,7 +578,13 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
                 empleadosFiltrados.map((empleado, index) => {
                   const fichaMedica = obtenerUltimaFichaMedica(empleado.id);
                   const datosFicha = obtenerDatosFichaMedica(fichaMedica);
+                  const isExpandido = filaExpandida === empleado.id;
                   
+                  // Filtrar documentos dinámicos de este empleado específico
+                  const documentosDelEmpleado = todosDocumentos.filter(
+                    doc => doc.empleadoId === empleado.id
+                  );
+
                   const calcularEdad = () => {
                     if (empleado.fechaNacimiento) {
                       const hoy = new Date();
@@ -545,83 +600,348 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
                   };
 
                   let leftNro = 0;
-                  let leftCedula = parseInt(columnas[0].width); // 60px
-                  let leftNombre = leftCedula + parseInt(columnas[1].width); // 60 + 120 = 180px
+                  let leftCedula = parseInt(columnas[0].width);
+                  let leftNombre = leftCedula + parseInt(columnas[1].width);
 
                   return (
-                    <tr
-                      key={empleado.id}
-                      className={`hover:bg-gray-50 transition-colors ${empleado.fechaSalida ? 'bg-red-50/50' : ''}`}
-                    >
-                      {/* Número */}
-                      <td 
-                        className="border border-gray-300 px-3 py-2 text-sm text-gray-700 bg-gray-50 sticky z-10 font-medium text-center border-r border-gray-300"
-                        style={{ left: `${leftNro}px` }}
+                    <Fragment key={empleado.id}>
+                      {/* Fila del Empleado */}
+                      <tr
+                        onClick={() => toggleFila(empleado.id)}
+                        className={`hover:bg-gray-50/80 transition-colors cursor-pointer select-none ${
+                          empleado.fechaSalida ? 'bg-red-50/30 hover:bg-red-50/50' : ''
+                        } ${isExpandido ? 'bg-primary/5 hover:bg-primary/10 border-b-0' : ''}`}
                       >
-                        {index + 1}
-                      </td>
+                        {/* Número */}
+                        <td 
+                          className="border border-gray-300 px-3 py-2 text-sm text-gray-700 bg-gray-50 sticky z-10 font-medium text-center border-r border-gray-300"
+                          style={{ left: `${leftNro}px` }}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className={`text-[10px] text-gray-400 transition-transform ${isExpandido ? 'rotate-90 text-primary font-bold' : ''}`}>
+                              ▶
+                            </span>
+                            <span>{index + 1}</span>
+                          </div>
+                        </td>
 
-                      {/* Cédula */}
-                      <td 
-                        className="border border-gray-300 px-3 py-2 text-sm text-gray-800 bg-gray-50 sticky z-10 font-medium border-r border-gray-300"
-                        style={{ left: `${leftCedula}px` }}
-                      >
-                        {empleado.cedula || empleado.dni || '-'}
-                      </td>
+                        {/* Cédula */}
+                        <td 
+                          className="border border-gray-300 px-3 py-2 text-sm text-gray-800 bg-gray-50 sticky z-10 font-medium border-r border-gray-300"
+                          style={{ left: `${leftCedula}px` }}
+                        >
+                          {empleado.cedula || empleado.dni || '-'}
+                        </td>
 
-                      {/* Nombre Completo */}
-                      <td 
-                        className="border border-gray-300 px-3 py-2 text-sm text-gray-800 bg-gray-50 sticky z-10 font-semibold border-r border-gray-300 truncate"
-                        style={{ left: `${leftNombre}px` }}
-                      >
-                        {`${empleado.firstName || empleado.names || ''} ${empleado.lastName || empleado.lastNames || ''}`.trim() || '-'}
-                        {empleado.fechaSalida && (
-                          <span className="ml-2 px-1.5 py-0.5 text-[10px] font-bold text-red-700 bg-red-100 rounded">
-                            Baja
-                          </span>
-                        )}
-                      </td>
+                        {/* Nombre Completo */}
+                        <td 
+                          className="border border-gray-300 px-3 py-2 text-sm text-gray-800 bg-gray-50 sticky z-10 font-semibold border-r border-gray-300 truncate"
+                          style={{ left: `${leftNombre}px` }}
+                        >
+                          {`${empleado.firstName || empleado.names || ''} ${empleado.lastName || empleado.lastNames || ''}`.trim() || '-'}
+                          {empleado.fechaSalida && (
+                            <span className="ml-2 px-1.5 py-0.5 text-[10px] font-bold text-red-700 bg-red-100 rounded">
+                              Baja
+                            </span>
+                          )}
+                        </td>
 
-                      {/* Puesto de Trabajo */}
-                      <td className="border border-gray-300 px-3 py-2 text-sm text-gray-600">
-                        {empleado.position || datosFicha.puestoTrabajo || '-'}
-                      </td>
+                        {/* Puesto de Trabajo */}
+                        <td className="border border-gray-300 px-3 py-2 text-sm text-gray-600">
+                          {empleado.position || datosFicha.puestoTrabajo || '-'}
+                        </td>
 
-                      {/* Sexo */}
-                      <td className="border border-gray-300 px-3 py-2 text-sm text-gray-600 text-center">
-                        {empleado.sexo || datosFicha.sexo || '-'}
-                      </td>
+                        {/* Sexo */}
+                        <td className="border border-gray-300 px-3 py-2 text-sm text-gray-600 text-center">
+                          {empleado.sexo || datosFicha.sexo || '-'}
+                        </td>
 
-                      {/* Edad */}
-                      <td className="border border-gray-300 px-3 py-2 text-sm text-gray-600 text-center">
-                        {calcularEdad()}
-                      </td>
+                        {/* Edad */}
+                        <td className="border border-gray-300 px-3 py-2 text-sm text-gray-600 text-center">
+                          {calcularEdad()}
+                        </td>
 
-                      {/* N° Historia Clínica */}
-                      <td className="border border-gray-300 px-3 py-2 text-sm text-gray-600">
-                        {datosFicha.numeroHistoriaClinica || empleado.numeroHistoriaClinica || '-'}
-                      </td>
+                        {/* N° Historia Clínica */}
+                        <td className="border border-gray-300 px-3 py-2 text-sm text-gray-600">
+                          {datosFicha.numeroHistoriaClinica || empleado.numeroHistoriaClinica || '-'}
+                        </td>
 
-                      {/* N° Archivo */}
-                      <td className="border border-gray-300 px-3 py-2 text-sm text-gray-600">
-                        {datosFicha.numeroArchivo || empleado.numeroArchivo || '-'}
-                      </td>
+                        {/* N° Archivo */}
+                        <td className="border border-gray-300 px-3 py-2 text-sm text-gray-600">
+                          {datosFicha.numeroArchivo || empleado.numeroArchivo || '-'}
+                        </td>
 
-                      {/* Fecha Inicio Labores */}
-                      <td className="border border-gray-300 px-3 py-2 text-sm text-gray-600">
-                        {formatFecha(datosFicha.fechaInicioLabores || empleado.fechaInicioLabores)}
-                      </td>
+                        {/* Fecha Inicio Labores */}
+                        <td className="border border-gray-300 px-3 py-2 text-sm text-gray-600">
+                          {formatFecha(datosFicha.fechaInicioLabores || empleado.fechaInicioLabores)}
+                        </td>
 
-                      {/* Fecha Salida */}
-                      <td className="border border-gray-300 px-3 py-2 text-sm text-gray-600">
-                        {formatFecha(datosFicha.fechaSalida || empleado.fechaSalida)}
-                      </td>
+                        {/* Fecha Salida */}
+                        <td className="border border-gray-300 px-3 py-2 text-sm text-gray-600">
+                          {formatFecha(datosFicha.fechaSalida || empleado.fechaSalida)}
+                        </td>
 
-                      {/* Tiempo (Meses) */}
-                      <td className="border border-gray-300 px-3 py-2 text-sm text-gray-600 text-center">
-                        {datosFicha.tiempoMeses || empleado.tiempoMeses || '-'}
-                      </td>
-                    </tr>
+                        {/* Tiempo (Meses) */}
+                        <td className="border border-gray-300 px-3 py-2 text-sm text-gray-600 text-center">
+                          {datosFicha.tiempoMeses || empleado.tiempoMeses || '-'}
+                        </td>
+                      </tr>
+
+                      {/* Fila de Acordeón Expandido */}
+                      {isExpandido && (
+                        <tr>
+                          <td colSpan={columnas.length} className="bg-gray-50 border border-gray-300 px-6 py-5 shadow-inner">
+                            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+                              {/* Barra de Pestañas */}
+                              <div className="flex border-b border-gray-200 bg-gray-50 px-2 pt-2">
+                                <button
+                                  type="button"
+                                  onClick={(e) => { e.stopPropagation(); setPestanaActiva('clinicos'); }}
+                                  className={`px-4 py-2 text-xs font-bold transition-all rounded-t-md ${
+                                    pestanaActiva === 'clinicos'
+                                      ? 'text-primary border border-gray-200 border-b-transparent bg-white font-extrabold'
+                                      : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100/50'
+                                  }`}
+                                >
+                                  Datos Clínicos y Constantes
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={(e) => { e.stopPropagation(); setPestanaActiva('documentos'); }}
+                                  className={`px-4 py-2 text-xs font-bold transition-all rounded-t-md ${
+                                    pestanaActiva === 'documentos'
+                                      ? 'text-primary border border-gray-200 border-b-transparent bg-white font-extrabold'
+                                      : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100/50'
+                                  }`}
+                                >
+                                  Fichas y Documentos ({documentosDelEmpleado.length})
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={(e) => { e.stopPropagation(); setPestanaActiva('nuevo_doc'); }}
+                                  className={`px-4 py-2 text-xs font-bold transition-all rounded-t-md ${
+                                    pestanaActiva === 'nuevo_doc'
+                                      ? 'text-primary border border-gray-200 border-b-transparent bg-white font-extrabold'
+                                      : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100/50'
+                                  }`}
+                                >
+                                  + Crear Ficha u Oficio
+                                </button>
+                              </div>
+
+                              <div className="p-5">
+                                {/* PESTAÑA 1: DATOS CLÍNICOS */}
+                                {pestanaActiva === 'clinicos' && (
+                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                    {/* Constantes vitales */}
+                                    <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                                      <h4 className="text-xs font-bold text-primary uppercase tracking-wider mb-3 pb-1.5 border-b border-gray-100 flex items-center gap-1.5">
+                                        <span>🩺</span> Constantes Vitales
+                                      </h4>
+                                      <div className="grid grid-cols-2 gap-x-3 gap-y-2.5 text-xs">
+                                        <div>
+                                          <span className="text-gray-400 font-medium block">Presión Arterial:</span>
+                                          <span className="font-bold text-gray-800">{datosFicha.presionArterial || empleado.presionArterial || 'No registrada'}</span>
+                                        </div>
+                                        <div>
+                                          <span className="text-gray-400 font-medium block">Temperatura:</span>
+                                          <span className="font-bold text-gray-800">{datosFicha.temperatura || empleado.temperatura || 'No registrada'}</span>
+                                        </div>
+                                        <div>
+                                          <span className="text-gray-400 font-medium block">Frecuencia Cardiaca:</span>
+                                          <span className="font-bold text-gray-800">{datosFicha.frecuenciaCardiaca || empleado.frecuenciaCardiaca || 'No registrada'}</span>
+                                        </div>
+                                        <div>
+                                          <span className="text-gray-400 font-medium block">Frecuencia Resp.:</span>
+                                          <span className="font-bold text-gray-800">{datosFicha.frecuenciaRespiratoria || empleado.frecuenciaRespiratoria || 'No registrada'}</span>
+                                        </div>
+                                        <div>
+                                          <span className="text-gray-400 font-medium block">Saturación O₂:</span>
+                                          <span className="font-bold text-gray-800">{datosFicha.saturacionOxigeno || empleado.saturacionOxigeno || 'No registrada'}</span>
+                                        </div>
+                                        <div>
+                                          <span className="text-gray-400 font-medium block">Perímetro Abdom.:</span>
+                                          <span className="font-bold text-gray-800">{datosFicha.perimetroAbdominal || empleado.perimetroAbdominal || 'No registrado'}</span>
+                                        </div>
+                                        <div>
+                                          <span className="text-gray-400 font-medium block">Peso (kg):</span>
+                                          <span className="font-bold text-gray-800">{datosFicha.peso || empleado.peso || 'No registrado'}</span>
+                                        </div>
+                                        <div>
+                                          <span className="text-gray-400 font-medium block">Talla (cm):</span>
+                                          <span className="font-bold text-gray-800">{datosFicha.talla || empleado.talla || 'No registrado'}</span>
+                                        </div>
+                                        <div className="col-span-2 pt-1">
+                                          <span className="text-gray-400 font-medium block mb-0.5">Índice de Masa Corporal (IMC):</span>
+                                          <span className={`inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                                            parseFloat(datosFicha.indiceMasaCorporal || empleado.indiceMasaCorporal) > 25 
+                                              ? 'bg-yellow-100 text-yellow-800' 
+                                              : 'bg-green-100 text-green-800'
+                                          }`}>
+                                            {datosFicha.indiceMasaCorporal || empleado.indiceMasaCorporal || 'No calculado'}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    {/* Antecedentes */}
+                                    <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                                      <h4 className="text-xs font-bold text-primary uppercase tracking-wider mb-3 pb-1.5 border-b border-gray-100 flex items-center gap-1.5">
+                                        <span>📋</span> Antecedentes y Historial
+                                      </h4>
+                                      <div className="space-y-3.5 text-xs">
+                                        <div>
+                                          <span className="text-gray-400 font-medium block mb-0.5">Antecedentes Clínicos:</span>
+                                          <p className="text-gray-800 bg-gray-50 px-2 py-1.5 rounded border border-gray-100 min-h-[45px] leading-relaxed">
+                                            {datosFicha.antecedentesClinicosQuirurgicos || empleado.antecedentesClinicosQuirurgicos || 'Sin antecedentes reportados'}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <span className="text-gray-400 font-medium block mb-0.5">Accidentes de Trabajo:</span>
+                                          <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                            datosFicha.accidentesTrabajoSi ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-700'
+                                          }`}>
+                                            {datosFicha.accidentesTrabajoSi ? (datosFicha.accidentesTrabajoEspecificar || 'Sí (Registrado)') : 'No reporta'}
+                                          </span>
+                                        </div>
+                                        <div>
+                                          <span className="text-gray-400 font-medium block mb-0.5">Enfermedades Profesionales:</span>
+                                          <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                            datosFicha.enfermedadesProfesionalesSi ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-700'
+                                          }`}>
+                                            {datosFicha.enfermedadesProfesionalesSi ? (datosFicha.enfermedadesProfesionalesEspecificar || 'Sí (Registrada)') : 'No reporta'}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    {/* Examen físico y Profesional */}
+                                    <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm flex flex-col justify-between">
+                                      <div className="space-y-3.5 text-xs">
+                                        <h4 className="text-xs font-bold text-primary uppercase tracking-wider pb-1.5 border-b border-gray-100 flex items-center gap-1.5">
+                                          <span>🔍</span> Examen Físico y Profesional
+                                        </h4>
+                                        <div>
+                                          <span className="text-gray-400 font-medium block mb-0.5">Examen Físico (Observaciones):</span>
+                                          <p className="text-gray-800 bg-gray-50 px-2 py-1.5 rounded border border-gray-100 min-h-[45px] leading-relaxed">
+                                            {datosFicha.examenFisicoObservaciones || empleado.examenFisicoObservaciones || 'Evaluación general normal sin hallazgos patológicos'}
+                                          </p>
+                                        </div>
+                                        
+                                        <div className="pt-2 border-t border-gray-100">
+                                          <span className="text-gray-400 font-medium block mb-1">Médico Ocupacional Evaluador:</span>
+                                          <div className="flex items-center gap-2">
+                                            <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-xs text-primary font-bold">
+                                              👨‍⚕️
+                                            </div>
+                                            <div>
+                                              <p className="font-bold text-gray-800">{datosFicha.nombresApellidosProfesional || empleado.nombresApellidosProfesional || 'Dr. Rolando Maldonado'}</p>
+                                              <p className="text-[10px] text-gray-400 font-medium">Registro: {datosFicha.codigoProfesional || empleado.codigoProfesional || '34567'}</p>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* PESTAÑA 2: DOCUMENTOS */}
+                                {pestanaActiva === 'documentos' && (
+                                  <div className="space-y-3">
+                                    {documentosDelEmpleado.length === 0 ? (
+                                      <div className="text-center py-8 bg-gray-50 border border-dashed border-gray-300 rounded-lg">
+                                        <svg className="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        <p className="text-xs text-gray-500 italic">No hay documentos de salud o inducciones creadas para este empleado.</p>
+                                        <button
+                                          type="button"
+                                          onClick={(e) => { e.stopPropagation(); setPestanaActiva('nuevo_doc'); }}
+                                          className="mt-3 px-3 py-1.5 text-xs font-bold text-white bg-primary hover:bg-primary-hover rounded-lg shadow-sm transition-colors"
+                                        >
+                                          Crear Primer Documento
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        {documentosDelEmpleado.map((doc) => {
+                                          const esFicha = doc.tipo === 'ficha-medica' || doc.tipo === 'Ficha Médica';
+                                          const esInduccion = doc.tipo === 'induccion' || doc.tipo === 'Inducción';
+                                          return (
+                                            <div key={doc.id} className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm flex items-center justify-between hover:border-primary/50 transition-colors">
+                                              <div className="flex items-center gap-3">
+                                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-lg ${
+                                                  esFicha ? 'bg-red-50 text-red-500' : esInduccion ? 'bg-blue-50 text-blue-500' : 'bg-gray-50 text-gray-500'
+                                                }`}>
+                                                  {esFicha ? '🏥' : esInduccion ? '📝' : '📋'}
+                                                </div>
+                                                <div>
+                                                  <p className="text-xs font-bold text-gray-800">{doc.titulo || `${doc.tipo} - ${doc.id}`}</p>
+                                                  <p className="text-[10px] text-gray-400">Creado: {formatFecha(doc.fechaCreacion)} | Por: {doc.creadoPor || 'Admin'}</p>
+                                                  <span className={`inline-block px-1.5 py-0.5 rounded-full text-[9px] font-bold mt-1 ${
+                                                    doc.estado === 'Publicado' 
+                                                      ? 'bg-green-50 text-green-700 border border-green-100' 
+                                                      : 'bg-yellow-50 text-yellow-700 border border-yellow-100'
+                                                  }`}>
+                                                    {doc.estado}
+                                                  </span>
+                                                </div>
+                                              </div>
+                                              <button
+                                                type="button"
+                                                onClick={(e) => { e.stopPropagation(); handleEditarDocumento(doc, empleado); }}
+                                                className="p-1.5 text-gray-400 hover:text-primary transition-colors hover:bg-gray-50 rounded"
+                                                title="Ver o editar ficha"
+                                              >
+                                                <svg className="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                                </svg>
+                                              </button>
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+
+                                {/* PESTAÑA 3: NUEVO DOCUMENTO */}
+                                {pestanaActiva === 'nuevo_doc' && (
+                                  <div className="space-y-3">
+                                    <p className="text-xs text-gray-500 font-semibold mb-1">Elija un formulario o plantilla para rellenar con los datos de este empleado:</p>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                                      {Object.keys(documentoTemplates).map((cat) => {
+                                        // Filtrar plantillas que correspondan
+                                        const templates = documentoTemplates[cat].filter(t => t.requiereEmpleado);
+                                        return templates.map((tmpl) => (
+                                          <button
+                                            type="button"
+                                            key={tmpl.id}
+                                            onClick={(e) => { e.stopPropagation(); handleCrearNuevoDocumento(tmpl, empleado); }}
+                                            className="bg-white p-3 rounded-lg border border-gray-200 hover:border-primary hover:shadow-md transition-all text-left flex items-start gap-2.5 w-full group"
+                                          >
+                                            <div className="text-xl p-1 bg-gray-50 rounded-lg group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                                              {tmpl.icono || '📋'}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                              <p className="text-xs font-bold text-gray-800 truncate group-hover:text-primary transition-colors">{tmpl.nombre}</p>
+                                              <p className="text-[10px] text-gray-400 mt-0.5 line-clamp-2 leading-tight">{tmpl.descripcion}</p>
+                                              <span className="inline-block px-1.5 py-0.5 bg-gray-50 text-gray-500 rounded text-[9px] font-bold mt-1.5 uppercase border border-gray-100">
+                                                {tmpl.categoria}
+                                              </span>
+                                            </div>
+                                          </button>
+                                        ));
+                                      })}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
                   );
                 })
               )}
@@ -633,7 +953,7 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
       {/* Información adicional */}
       <div className="bg-gray-50 rounded-lg px-4 py-3 border border-gray-200">
         <p className="text-xs text-gray-500">
-          Nota: Esta matriz se ha recortado para mostrar información básica y contractual del empleado de forma más compacta. Los datos clínicos y antecedentes siguen vinculados internamente en las fichas médicas correspondientes.
+          Nota: Haga clic en cualquier empleado para ver sus constantes clínicas ocultas de la tabla, acceder a sus fichas/documentos actuales o registrar una nueva ficha médica/inducción usando plantillas.
         </p>
       </div>
 
