@@ -15,7 +15,25 @@ const Documents = ({ companies, employees, establecimientos, profesionales }) =>
   );
 
   const handleVolver = () => {
-    navigate('/formularios/lista');
+    if (location.state?.returnTo) {
+      const { empresaId, empleadoId, pestanaActiva, scrollY } = location.state.returnTo;
+      navigate(`/anexo1/empresa/${empresaId}/matriz-empleados`, {
+        state: { empleadoId, pestanaActiva, scrollY }
+      });
+    } else {
+      navigate('/formularios/lista');
+    }
+  };
+
+  const handleCancelar = () => {
+    if (location.state?.returnTo) {
+      const { empresaId, empleadoId, pestanaActiva, scrollY } = location.state.returnTo;
+      navigate(`/anexo1/empresa/${empresaId}/matriz-empleados`, {
+        state: { empleadoId, pestanaActiva, scrollY }
+      });
+    } else {
+      navigate('/documents');
+    }
   };
 
   return (
@@ -53,7 +71,7 @@ const Documents = ({ companies, employees, establecimientos, profesionales }) =>
               </p>
             </div>
             <button
-              onClick={() => navigate('/documents')}
+              onClick={handleCancelar}
               className="px-4 py-2 bg-white text-gray-700 rounded-lg hover:bg-gray-100 transition-colors text-sm font-medium border border-gray-300"
             >
               Cancelar edición
@@ -78,7 +96,7 @@ const Documents = ({ companies, employees, establecimientos, profesionales }) =>
               </div>
             </div>
             <button
-              onClick={() => navigate('/documents')}
+              onClick={handleCancelar}
               className="px-4 py-2 bg-white text-gray-700 rounded-lg hover:bg-gray-100 transition-colors text-sm font-medium border border-gray-300"
             >
               Cancelar

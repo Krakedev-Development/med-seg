@@ -1,5 +1,5 @@
-import { useState, useMemo, Fragment } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useMemo, Fragment, useEffect } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { initialCompanies } from '../data/companiesData';
 import { initialEmployees } from '../data/employeesData';
 import { getDocumentosByEmpresa, documentosDinamicos } from '../data/documentosDinamicosData';
@@ -8,6 +8,7 @@ import { documentoTemplates } from '../data/documentoTemplates';
 const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmployees, setEmployees }) => {
   const { empresaId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [busqueda, setBusqueda] = useState('');
   
   // Accordion row state
@@ -45,6 +46,23 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
   const empleadosEmpresa = useMemo(() => {
     return employees.filter(e => e.companyId === empresaIdNum);
   }, [empresaIdNum, employees]);
+
+  // Restaurar estado al volver desde creación/edición de documento
+  useEffect(() => {
+    if (location.state?.empleadoId) {
+      setFilaExpandida(location.state.empleadoId);
+      setPestanaActiva(location.state.pestanaActiva || 'clinicos');
+      const scrollY = location.state.scrollY || 0;
+      requestAnimationFrame(() => {
+        const scrollContainer = document.querySelector('[class*="overflow-y-auto"]');
+        if (scrollContainer) {
+          scrollContainer.scrollTop = scrollY;
+        }
+      });
+      // Limpiar el state para que no se restaure de nuevo al recargar
+      window.history.replaceState({}, document.title);
+    }
+  }, []);
 
   // Obtener todos los documentos dinámicos de esta empresa
   const todosDocumentos = useMemo(() => {
@@ -404,12 +422,19 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
 
   // Navegar para crear un nuevo documento dinámico usando plantilla
   const handleCrearNuevoDocumento = (template, empleado) => {
+    const scrollContainer = document.querySelector('[class*="overflow-y-auto"]');
     navigate('/formularios/crear', {
       state: {
         empresa: empresa,
         empleado: empleado,
         plantilla: template,
-        tipo: template.categoria
+        tipo: template.categoria,
+        returnTo: {
+          empresaId,
+          empleadoId: empleado.id,
+          pestanaActiva,
+          scrollY: scrollContainer ? scrollContainer.scrollTop : 0
+        }
       }
     });
   };
@@ -421,12 +446,19 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
     else if (doc.tipo === 'induccion' || doc.tipo === 'Inducción') tipoUpper = 'INDUCCIÓN';
     else if (doc.tipo === 'inspeccion' || doc.tipo === 'Inspección') tipoUpper = 'INSPECCIONES';
     
+    const scrollContainer = document.querySelector('[class*="overflow-y-auto"]');
     navigate('/formularios/crear', {
       state: {
         empresa: empresa,
         empleado: empleado,
         tipo: tipoUpper,
-        documento: doc
+        documento: doc,
+        returnTo: {
+          empresaId,
+          empleadoId: empleado.id,
+          pestanaActiva,
+          scrollY: scrollContainer ? scrollContainer.scrollTop : 0
+        }
       }
     });
   };
