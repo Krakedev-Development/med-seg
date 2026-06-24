@@ -5,7 +5,6 @@ import { initialEmployees } from '../data/employeesData';
 import { getDocumentosByEmpresa, crearDocumentoDinamico, documentosDinamicos } from '../data/documentosDinamicosData';
 import InspeccionAreasMulti from '../components/InspeccionAreasMulti';
 import InduccionPersonalCocina from '../components/documentos/induccion/InduccionPersonalCocina';
-import FichaMedicaEvaluacionRetiro from '../components/documentos/fichaMedica/FichaMedicaEvaluacionRetiro';
 
 const FileTextIcon = ({ className }) => (
   <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,14 +61,6 @@ const FormulariosDinamicos = ({ companies = initialCompanies, employees = initia
       tipo: 'induccion',
       icono: '👨‍🍳',
       requiereEmpleado: true
-    },
-    {
-      id: 'ficha-medica',
-      nombre: 'Ficha Médica Ocupacional',
-      descripcion: 'Ficha médica de evaluación y retiro',
-      tipo: 'ficha-medica',
-      icono: '🏥',
-      requiereEmpleado: false
     }
   ];
 
@@ -277,19 +268,6 @@ const FormulariosDinamicos = ({ companies = initialCompanies, employees = initia
                 fecha={new Date().toLocaleDateString('es-ES')}
                 puestoTrabajo={empleadoSeleccionado.position || '_________________'}
                 actividadesPuesto={empleadoSeleccionado.activities || '________________________________________________________________________________________________________________'}
-              />
-            )}
-            {tipoSeleccionado === 'ficha-medica' && (
-              <FichaMedicaEvaluacionRetiro
-                logoEmpresa={empresaSeleccionada.logo}
-                nombreEmpresa={empresaSeleccionada.name}
-                institucion={empresaSeleccionada.name}
-                ruc={empresaSeleccionada.ruc || ''}
-                ciiu={empresaSeleccionada.ciiu || ''}
-                primerApellido={empleadoSeleccionado ? (empleadoSeleccionado.lastNames || empleadoSeleccionado.lastName || '').split(' ')[0] : ''}
-                segundoApellido={empleadoSeleccionado ? (empleadoSeleccionado.lastNames || empleadoSeleccionado.lastName || '').split(' ')[1] || '' : ''}
-                nombres={empleadoSeleccionado ? (empleadoSeleccionado.name || empleadoSeleccionado.names || '') : ''}
-                numeroCedula={empleadoSeleccionado ? (empleadoSeleccionado.cedula || empleadoSeleccionado.dni || '') : ''}
               />
             )}
             <div className="mt-6 flex gap-3 justify-end">

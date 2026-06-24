@@ -22,19 +22,6 @@ const generarDocumentosPorActividad = (actividad, empresaId) => {
   // Documentos comunes a todas las actividades
   const documentosComunes = [
     {
-      id: `doc-${empresaId}-ficha-medica-1`,
-      tipo: 'Ficha Médica',
-      titulo: 'Ficha Médica Ocupacional - Evaluación Inicial',
-      fecha: fecha,
-      categoria: 'Ficha Médica',
-      actividad: actividad,
-      datos: {
-        tipo: 'ficha-medica',
-        nombreEmpresa: 'Empresa',
-        fechaEvaluacion: fecha
-      }
-    },
-    {
       id: `doc-${empresaId}-induccion-1`,
       tipo: 'Inducción',
       titulo: 'Inducción General de Seguridad y Salud en el Trabajo',
@@ -278,7 +265,6 @@ const FormulariosDinamicosEmpresa = ({ companies = initialCompanies, employees =
   // Tipos de documento disponibles
   const tiposDocumento = [
     { value: 'all', label: 'Todos los tipos' },
-    { value: 'Ficha Médica', label: 'Ficha Médica' },
     { value: 'Inspección', label: 'Inspecciones' },
     { value: 'Inducción', label: 'Inducciones' },
     { value: 'Otros', label: 'Otros' }
