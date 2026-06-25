@@ -1,13 +1,15 @@
-import { useState, useMemo, Fragment } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useMemo, Fragment, useEffect } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { initialCompanies } from '../data/companiesData';
 import { initialEmployees } from '../data/employeesData';
-import { getDocumentosByEmpresa, documentosDinamicos } from '../data/documentosDinamicosData';
+import { getDocumentosByEmpresa, crearDocumentoDinamico, documentosDinamicos } from '../data/documentosDinamicosData';
 import { documentoTemplates } from '../data/documentoTemplates';
+import FichaMedicaEvaluacionRetiro from '../components/documentos/fichaMedica/FichaMedicaEvaluacionRetiro';
 
 const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmployees, setEmployees }) => {
   const { empresaId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [busqueda, setBusqueda] = useState('');
   
   // Accordion row state
@@ -17,6 +19,8 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
   // Modals visibility
   const [mostrarModalAgregar, setMostrarModalAgregar] = useState(false);
   const [mostrarModalIess, setMostrarModalIess] = useState(false);
+  const [mostrarFichaOcupacional, setMostrarFichaOcupacional] = useState(false);
+  const [empleadoSeleccionadoFicha, setEmpleadoSeleccionadoFicha] = useState(null);
 
   // New Employee state
   const [nuevoEmpleado, setNuevoEmpleado] = useState({
@@ -45,6 +49,23 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
   const empleadosEmpresa = useMemo(() => {
     return employees.filter(e => e.companyId === empresaIdNum);
   }, [empresaIdNum, employees]);
+
+  // Restaurar estado al volver desde creación/edición de documento
+  useEffect(() => {
+    if (location.state?.empleadoId) {
+      setFilaExpandida(location.state.empleadoId);
+      setPestanaActiva(location.state.pestanaActiva || 'clinicos');
+      const scrollY = location.state.scrollY || 0;
+      requestAnimationFrame(() => {
+        const scrollContainer = document.querySelector('[class*="overflow-y-auto"]');
+        if (scrollContainer) {
+          scrollContainer.scrollTop = scrollY;
+        }
+      });
+      // Limpiar el state para que no se restaure de nuevo al recargar
+      window.history.replaceState({}, document.title);
+    }
+  }, []);
 
   // Obtener todos los documentos dinámicos de esta empresa
   const todosDocumentos = useMemo(() => {
@@ -404,12 +425,19 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
 
   // Navegar para crear un nuevo documento dinámico usando plantilla
   const handleCrearNuevoDocumento = (template, empleado) => {
+    const scrollContainer = document.querySelector('[class*="overflow-y-auto"]');
     navigate('/formularios/crear', {
       state: {
         empresa: empresa,
         empleado: empleado,
         plantilla: template,
-        tipo: template.categoria
+        tipo: template.categoria,
+        returnTo: {
+          empresaId,
+          empleadoId: empleado.id,
+          pestanaActiva,
+          scrollY: scrollContainer ? scrollContainer.scrollTop : 0
+        }
       }
     });
   };
@@ -421,12 +449,19 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
     else if (doc.tipo === 'induccion' || doc.tipo === 'Inducción') tipoUpper = 'INDUCCIÓN';
     else if (doc.tipo === 'inspeccion' || doc.tipo === 'Inspección') tipoUpper = 'INSPECCIONES';
     
+    const scrollContainer = document.querySelector('[class*="overflow-y-auto"]');
     navigate('/formularios/crear', {
       state: {
         empresa: empresa,
         empleado: empleado,
         tipo: tipoUpper,
-        documento: doc
+        documento: doc,
+        returnTo: {
+          empresaId,
+          empleadoId: empleado.id,
+          pestanaActiva,
+          scrollY: scrollContainer ? scrollContainer.scrollTop : 0
+        }
       }
     });
   };
@@ -439,6 +474,24 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
       setFilaExpandida(empleadoId);
       setPestanaActiva('clinicos'); // Reset a la primera pestaña al expandir
     }
+  };
+
+  // Abrir modal de Ficha Ocupacional para un empleado
+  const handleAbrirFichaOcupacional = (empleado) => {
+    setEmpleadoSeleccionadoFicha(empleado);
+    setMostrarFichaOcupacional(true);
+  };
+
+  // Guardar Ficha Ocupacional desde el modal
+  const handleGuardarFichaOcupacional = () => {
+    if (!empleadoSeleccionadoFicha) return;
+    crearDocumentoDinamico('ficha-medica', empresaIdNum, {
+      titulo: 'Ficha Médica Ocupacional',
+      empleadoId: empleadoSeleccionadoFicha.id,
+      creadoPor: 'admin'
+    }, empleadoSeleccionadoFicha.id);
+    setMostrarFichaOcupacional(false);
+    setEmpleadoSeleccionadoFicha(null);
   };
 
   if (!empresa) {
@@ -848,6 +901,18 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
                                 {/* PESTAÑA 2: DOCUMENTOS */}
                                 {pestanaActiva === 'documentos' && (
                                   <div className="space-y-3">
+                                    {/* Botón directo para crear Ficha Ocupacional */}
+                                    <div className="flex items-center justify-between">
+                                      <p className="text-xs font-bold text-gray-600 uppercase tracking-wider">Documentos del empleado</p>
+                                      <button
+                                        type="button"
+                                        onClick={(e) => { e.stopPropagation(); handleAbrirFichaOcupacional(empleado); }}
+                                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-red-500 hover:bg-red-600 rounded-lg shadow-sm transition-colors"
+                                      >
+                                        <span className="text-sm">🏥</span>
+                                        Crear Ficha Ocupacional
+                                      </button>
+                                    </div>
                                     {documentosDelEmpleado.length === 0 ? (
                                       <div className="text-center py-8 bg-gray-50 border border-dashed border-gray-300 rounded-lg">
                                         <svg className="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1279,6 +1344,68 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
                 className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg transition-colors"
               >
                 Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= MODAL FICHA OCUPACIONAL ================= */}
+      {mostrarFichaOcupacional && empleadoSeleccionadoFicha && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-5xl w-full overflow-hidden border border-gray-200 flex flex-col max-h-[90vh]">
+            <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🏥</span>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800">Ficha Médica Ocupacional</h3>
+                  <p className="text-xs text-gray-500">
+                    {empleadoSeleccionadoFicha.names || empleadoSeleccionadoFicha.firstName} {empleadoSeleccionadoFicha.lastNames || empleadoSeleccionadoFicha.lastName} — Cédula: {empleadoSeleccionadoFicha.cedula || empleadoSeleccionadoFicha.dni}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => { setMostrarFichaOcupacional(false); setEmpleadoSeleccionadoFicha(null); }}
+                className="text-gray-400 hover:text-gray-600 text-xl font-bold"
+              >
+                &times;
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto flex-1 bg-gray-50">
+              <FichaMedicaEvaluacionRetiro
+                logoEmpresa={empresa?.logo}
+                nombreEmpresa={empresa?.name || ''}
+                institucion={empresa?.name || ''}
+                ruc={empresa?.ruc || ''}
+                ciiu={empresa?.ciiu || ''}
+                primerApellido={(empleadoSeleccionadoFicha.lastNames || empleadoSeleccionadoFicha.lastName || '').split(' ')[0] || ''}
+                segundoApellido={(empleadoSeleccionadoFicha.lastNames || empleadoSeleccionadoFicha.lastName || '').split(' ')[1] || ''}
+                primerNombre={(empleadoSeleccionadoFicha.names || empleadoSeleccionadoFicha.firstName || '').split(' ')[0] || ''}
+                segundoNombre={(empleadoSeleccionadoFicha.names || empleadoSeleccionadoFicha.firstName || '').split(' ')[1] || ''}
+                sexo={empleadoSeleccionadoFicha.sexo || ''}
+                fechaInicioLabores={empleadoSeleccionadoFicha.fechaInicioLabores || ''}
+                fechaSalida={empleadoSeleccionadoFicha.fechaSalida || ''}
+                numeroCedula={empleadoSeleccionadoFicha.cedula || empleadoSeleccionadoFicha.dni || ''}
+                puestoTrabajo={empleadoSeleccionadoFicha.position || ''}
+                editable={true}
+              />
+            </div>
+
+            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => { setMostrarFichaOcupacional(false); setEmpleadoSeleccionadoFicha(null); }}
+                className="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded-lg transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleGuardarFichaOcupacional}
+                className="px-4 py-2 text-sm font-semibold text-white bg-primary hover:bg-primary-hover rounded-lg shadow-sm transition-colors"
+              >
+                Guardar Ficha
               </button>
             </div>
           </div>
