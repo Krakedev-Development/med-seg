@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { initialCompanies } from '../data/companiesData';
 import { initialEmployees } from '../data/employeesData';
+import { capacitaciones } from '../data/capacitacionesData';
 import { SECCIONES_SST } from '../components/documentos/anexo1/anexo1';
 import { crearEvaluacionDesdeItem } from '../data/evaluacionesData';
 
@@ -13,6 +14,10 @@ const CrearEvaluacionItem = ({ companies = initialCompanies, employees = initial
 
   const empresa = companies.find(c => c.id === parseInt(empresaId));
   const trabajadoresEmpresa = employees.filter(e => e.companyId === parseInt(empresaId));
+  const capacitacionesEmpresa = capacitaciones.filter(c =>
+    (c.empresaId && c.empresaId === parseInt(empresaId)) ||
+    (c.empresasAsignadas && c.empresasAsignadas.includes(parseInt(empresaId)))
+  );
   
   // Obtener el ítem del Anexo 1
   const item = useMemo(() => {
@@ -28,7 +33,8 @@ const CrearEvaluacionItem = ({ companies = initialCompanies, employees = initial
   const [formData, setFormData] = useState({
     nombre: '',
     descripcion: '',
-    fechaLimite: '',
+    fechaLimite: new Date().toISOString().split('T')[0],
+    capacitacionId: '',
     trabajadores: [],
   });
 
@@ -135,6 +141,7 @@ const CrearEvaluacionItem = ({ companies = initialCompanies, employees = initial
         nombre: formData.nombre,
         descripcion: formData.descripcion,
         fechaLimite: formData.fechaLimite || null,
+        capacitacionId: formData.capacitacionId ? parseInt(formData.capacitacionId) : null,
         preguntas: preguntas,
         trabajadores: formData.trabajadores,
       }
@@ -213,6 +220,30 @@ const CrearEvaluacionItem = ({ companies = initialCompanies, employees = initial
               onChange={(e) => setFormData({ ...formData, fechaLimite: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Capacitación asociada *
+            </label>
+            <select
+              value={formData.capacitacionId}
+              onChange={(e) => setFormData({ ...formData, capacitacionId: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+            >
+              <option value="">Seleccione una capacitación</option>
+              {[...capacitacionesEmpresa]
+                .sort((a, b) => new Date(b.fechaProgramada) - new Date(a.fechaProgramada))
+                .map(cap => (
+                  <option key={cap.id} value={cap.id}>
+                    {cap.nombre} — {new Date(cap.fechaProgramada).toLocaleDateString('es-ES')}
+                  </option>
+                ))}
+            </select>
+            {capacitacionesEmpresa.length === 0 && (
+              <p className="text-xs text-amber-600 mt-1">
+                No hay capacitaciones creadas para esta empresa. Cree una primero.
+              </p>
+            )}
           </div>
         </div>
       </div>

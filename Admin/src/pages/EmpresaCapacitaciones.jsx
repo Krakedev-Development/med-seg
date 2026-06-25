@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import CapacitacionForm from '../components/CapacitacionForm';
 import { capacitaciones as initialCapacitaciones, actividadesDisponibles, estadosCapacitacion } from '../data/capacitacionesData';
+import { plantillaMap } from '../data/plantillasCapacitacion';
 import { initialCompanies } from '../data/companiesData';
 import { initialEmployees } from '../data/employeesData';
 
@@ -230,6 +231,21 @@ const EmpresaCapacitaciones = ({ companies = initialCompanies, employees = initi
                   {cap.estado}
                 </span>
               </div>
+              {cap.plantillaId && plantillaMap[cap.plantillaId] && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-500">Plantilla:</span>
+                  <span className="flex items-center gap-1.5 px-2 py-1 bg-primary/10 text-primary rounded-full text-xs font-semibold">
+                    <span>{plantillaMap[cap.plantillaId].icono}</span>
+                    <span className="truncate max-w-[180px]">{plantillaMap[cap.plantillaId].nombre}</span>
+                  </span>
+                </div>
+              )}
+              {cap.capacitadores && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-500">Capacitador(es):</span>
+                  <span className="font-medium text-gray-700 truncate max-w-[200px]">{cap.capacitadores}</span>
+                </div>
+              )}
             </div>
 
             <div className="flex gap-2 pt-4 border-t">

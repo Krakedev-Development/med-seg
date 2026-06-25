@@ -739,7 +739,8 @@ const tipoIconos = {
   firma: '✍️',
   inspeccion: '🔍',
   checklist: '✅',
-  'ficha-medica': '🩺'
+  'ficha-medica': '🩺',
+  custom: '📄'
 };
 
 const FormulariosDinamicosEmpresa = ({ companies = initialCompanies, employees = initialEmployees }) => {
@@ -754,6 +755,16 @@ const FormulariosDinamicosEmpresa = ({ companies = initialCompanies, employees =
   const [documentoSeleccionado, setDocumentoSeleccionado] = useState(null);
   const [datosDocumento, setDatosDocumento] = useState({});
   const previewRef = useRef(null);
+
+  const [showCustomDocForm, setShowCustomDocForm] = useState(false);
+  const [editingCustomDoc, setEditingCustomDoc] = useState(null);
+  const [customDocForm, setCustomDocForm] = useState({
+    titulo: '',
+    codigo: '',
+    categoria: 'Inducciones',
+    archivo: null,
+    archivoNombre: ''
+  });
 
   const empresa = companies.find(c => c.id === parseInt(empresaId));
   const documentosEmpresa = getDocumentosByEmpresa(parseInt(empresaId));
@@ -864,6 +875,83 @@ const FormulariosDinamicosEmpresa = ({ companies = initialCompanies, employees =
     };
     setDocumentoSeleccionado(virtualDoc);
     setDatosDocumento(virtualDoc.datos);
+  };
+
+  // Abrir formulario de documento personalizado (nuevo)
+  const handleOpenCustomDocForm = () => {
+    setEditingCustomDoc(null);
+    setCustomDocForm({
+      titulo: '',
+      codigo: '',
+      categoria: 'Inducciones',
+      archivo: null,
+      archivoNombre: ''
+    });
+    setShowCustomDocForm(true);
+  };
+
+  // Abrir formulario de documento personalizado (editar)
+  const handleEditCustomDoc = (doc) => {
+    setEditingCustomDoc(doc);
+    setCustomDocForm({
+      titulo: doc.titulo || '',
+      codigo: doc.datos?.codigo || '',
+      categoria: doc.datos?.categoria || 'Inducciones',
+      archivo: null,
+      archivoNombre: doc.datos?.archivo || ''
+    });
+    setShowCustomDocForm(true);
+  };
+
+  // Guardar documento personalizado
+  const handleSaveCustomDoc = () => {
+    if (!customDocForm.titulo.trim()) {
+      alert('El título es obligatorio');
+      return;
+    }
+
+    const tipoMap = {
+      'Inducciones': 'induccion',
+      'Comité Paritario': 'comite',
+      'Mantenimiento': 'mantenimiento',
+      'Alto Riesgo': 'permiso',
+      'EPP / Firmas': 'epp',
+      'Inspecciones / Otros': 'inspeccion'
+    };
+    const tipo = tipoMap[customDocForm.categoria] || 'custom';
+
+    if (editingCustomDoc) {
+      const idx = documentosDinamicos.findIndex(d => d.id === editingCustomDoc.id);
+      if (idx !== -1) {
+        documentosDinamicos[idx] = {
+          ...documentosDinamicos[idx],
+          titulo: customDocForm.titulo.trim(),
+          tipo,
+          datos: {
+            ...documentosDinamicos[idx].datos,
+            codigo: customDocForm.codigo.trim() || documentosDinamicos[idx].datos?.codigo,
+            categoria: customDocForm.categoria,
+            archivo: customDocForm.archivoNombre || documentosDinamicos[idx].datos?.archivo
+          }
+        };
+      }
+    } else {
+      crearDocumentoDinamico(
+        tipo,
+        parseInt(empresaId),
+        {
+          titulo: customDocForm.titulo.trim(),
+          codigo: customDocForm.codigo.trim() || `DOC-${Date.now()}`,
+          categoria: customDocForm.categoria,
+          archivo: customDocForm.archivoNombre,
+          tipo
+        },
+        null
+      );
+    }
+
+    setShowCustomDocForm(false);
+    setEditingCustomDoc(null);
   };
   
   // Manejar cambio de campo editable en formulario dinámico
@@ -1040,6 +1128,148 @@ const FormulariosDinamicosEmpresa = ({ companies = initialCompanies, employees =
 
   return (
     <div className="space-y-6">
+      {/* Modal de Formulario Personalizado */}
+      {showCustomDocForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
+            {/* Header del modal */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-xl font-bold text-gray-800">
+                {editingCustomDoc ? 'Editar Formato' : 'Crear Formato Personalizado'}
+              </h2>
+              <button
+                onClick={() => { setShowCustomDocForm(false); setEditingCustomDoc(null); }}
+                className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+              >
+                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Campos del formulario */}
+            <div className="p-6 space-y-4">
+              {/* Título */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Título *</label>
+                <input
+                  type="text"
+                  value={customDocForm.titulo}
+                  onChange={(e) => setCustomDocForm(prev => ({ ...prev, titulo: e.target.value }))}
+                  placeholder="Ej: Inducción de Seguridad Minera"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-sm"
+                />
+              </div>
+
+              {/* Código */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Código</label>
+                <input
+                  type="text"
+                  value={customDocForm.codigo}
+                  onChange={(e) => setCustomDocForm(prev => ({ ...prev, codigo: e.target.value }))}
+                  placeholder="Ej: IND-2025-001 (opcional, se auto-genera)"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-sm"
+                />
+              </div>
+
+              {/* Tipo / Categoría */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Tipo / Categoría *</label>
+                <select
+                  value={customDocForm.categoria}
+                  onChange={(e) => setCustomDocForm(prev => ({ ...prev, categoria: e.target.value }))}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all text-sm bg-white"
+                >
+                  <option value="Inducciones">📖 Inducciones</option>
+                  <option value="Comité Paritario">👥 Comité Paritario</option>
+                  <option value="Mantenimiento">🛠️ Mantenimiento</option>
+                  <option value="Alto Riesgo">⚠️ Alto Riesgo</option>
+                  <option value="EPP / Firmas">🦺 EPP / Firmas</option>
+                  <option value="Inspecciones / Otros">🔍 Inspecciones / Otros</option>
+                </select>
+              </div>
+
+              {/* Archivo adjunto */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Archivo adjunto</label>
+                <label className="flex items-center gap-3 px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer">
+                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                  <span className="text-sm text-gray-500">
+                    {customDocForm.archivoNombre || 'Seleccionar archivo (PDF, Word, Excel, imagen)'}
+                  </span>
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept=".pdf,.docx,.xlsx,.png,.jpg,.jpeg"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        setCustomDocForm(prev => ({ ...prev, archivo: file, archivoNombre: file.name }));
+                      }
+                    }}
+                  />
+                </label>
+                {customDocForm.archivoNombre && (
+                  <div className="flex items-center gap-2 mt-2 text-xs text-green-700 bg-green-50 px-3 py-2 rounded-lg">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {customDocForm.archivoNombre}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setCustomDocForm(prev => ({ ...prev, archivo: null, archivoNombre: '' })); }}
+                      className="ml-auto text-red-500 hover:text-red-700"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Preview */}
+              <div className="mt-4">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Vista previa</label>
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <div className="flex items-start gap-3">
+                    <span className="text-3xl p-2.5 bg-white rounded-xl border border-gray-200 flex items-center justify-center shrink-0 shadow-sm">
+                      {tipoIconos[customDocForm.categoria === 'Inducciones' ? 'induccion' : customDocForm.categoria === 'Comité Paritario' ? 'comite' : customDocForm.categoria === 'Mantenimiento' ? 'mantenimiento' : customDocForm.categoria === 'Alto Riesgo' ? 'permiso' : customDocForm.categoria === 'EPP / Firmas' ? 'epp' : 'inspeccion'] || '📄'}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-gray-800 truncate">
+                        {customDocForm.titulo || 'Título del documento'}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {customDocForm.categoria} • {customDocForm.codigo || 'Sin código'} • {customDocForm.archivoNombre || 'Sin archivo'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer del modal */}
+            <div className="flex gap-3 justify-end p-6 border-t border-gray-200">
+              <button
+                onClick={() => { setShowCustomDocForm(false); setEditingCustomDoc(null); }}
+                className="px-5 py-2.5 border border-gray-300 rounded-xl hover:bg-gray-100 transition-colors text-sm font-semibold"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSaveCustomDoc}
+                className="px-5 py-2.5 bg-primary text-white rounded-xl hover:bg-primary/95 transition-colors text-sm font-bold"
+              >
+                {editingCustomDoc ? 'Guardar Cambios' : 'Guardar Documento'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header de la sección */}
       <div className="bg-white rounded-lg shadow-md p-6">
         <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
@@ -1154,6 +1384,19 @@ const FormulariosDinamicosEmpresa = ({ companies = initialCompanies, employees =
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {/* Tarjeta "+" para crear formato personalizado */}
+            <div
+              onClick={handleOpenCustomDocForm}
+              className="flex flex-col justify-center items-center rounded-2xl bg-gray-50 p-5 border-2 border-dashed border-gray-300 hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 cursor-pointer opacity-60 hover:opacity-100 min-h-[280px]"
+            >
+              <div className="w-14 h-14 rounded-full bg-gray-200 hover:bg-primary/10 flex items-center justify-center mb-3 transition-colors">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+              </div>
+              <p className="text-sm font-semibold text-gray-500">Crear Formato</p>
+              <p className="text-xs text-gray-400 mt-1 text-center">Documento personalizado</p>
+            </div>
             {templatesFiltrados.map((temp) => {
               const isHabilitado = documentosHabilitadosIds.includes(temp.id);
               return (
@@ -1274,6 +1517,12 @@ const FormulariosDinamicosEmpresa = ({ companies = initialCompanies, employees =
                   </div>
                 </div>
                 <div className="flex gap-2">
+                  <button
+                    onClick={() => handleEditCustomDoc(doc)}
+                    className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm font-semibold"
+                  >
+                    Editar
+                  </button>
                   <button
                     onClick={() => window.print()}
                     className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm font-semibold"

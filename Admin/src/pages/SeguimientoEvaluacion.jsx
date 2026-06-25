@@ -6,7 +6,7 @@ import { initialCompanies } from '../data/companiesData';
 import { initialEmployees } from '../data/employeesData';
 
 const SeguimientoEvaluacion = ({ companies = initialCompanies, employees = initialEmployees }) => {
-  const { evaluacionId } = useParams();
+  const { evaluacionId, empresaId } = useParams();
   const navigate = useNavigate();
   const [filtroEstado, setFiltroEstado] = useState('all');
   const [busquedaEmpleado, setBusquedaEmpleado] = useState('');
@@ -70,7 +70,7 @@ const SeguimientoEvaluacion = ({ companies = initialCompanies, employees = initi
       const index = evaluaciones.findIndex(e => e.id === evaluacion.id);
       if (index !== -1) {
         evaluaciones[index].estado = 'Finalizada';
-        navigate('/evaluaciones');
+        navigate(`/anexo1/empresa/${empresaId}/evaluaciones`);
       }
     }
   };
@@ -84,7 +84,7 @@ const SeguimientoEvaluacion = ({ companies = initialCompanies, employees = initi
       alert('No se pueden editar evaluaciones activas. Solo se pueden editar evaluaciones en estado "Borrador".');
       return;
     }
-    navigate(`/evaluaciones?editar=${evaluacion.id}`);
+    navigate(`/anexo1/empresa/${empresaId}/evaluaciones?editar=${evaluacion.id}`);
   };
 
   if (!evaluacion) {
@@ -104,7 +104,7 @@ const SeguimientoEvaluacion = ({ companies = initialCompanies, employees = initi
         <div className="flex items-center justify-between">
           <div>
             <button
-              onClick={() => navigate('/evaluaciones')}
+              onClick={() => navigate(`/anexo1/empresa/${empresaId}/evaluaciones`)}
               className="flex items-center gap-2 text-gray-600 hover:text-gray-800 mb-4 transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

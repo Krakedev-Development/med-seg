@@ -4,38 +4,39 @@ export let capacitaciones = [
     id: 1,
     nombre: 'Seguridad en Minería Subterránea',
     descripcion: 'Capacitación sobre protocolos de seguridad en trabajos mineros subterráneos',
-    fechaProgramada: '2025-02-15',
+    fechaProgramada: '2025-01-15',
     actividadRelacionada: 'Minería',
-    estado: 'Programada',
-    empresasAsignadas: [1, 2], // IDs de empresas
-    fechaCreacion: '2025-01-10',
-    anexo1ItemId: null, // ID del ítem del Anexo 1 relacionado
-    anexo1Id: null, // ID del Anexo 1 relacionado
-    empresaId: null, // ID de la empresa
-    trabajadoresAsignados: [], // IDs de trabajadores
-    responsable: null, // ID del profesional responsable
-    modalidad: 'presencial', // presencial/virtual
-    hora: null,
+    estado: 'Finalizada',
+    empresasAsignadas: [1],
+    fechaCreacion: '2025-01-05',
+    anexo1ItemId: null,
+    anexo1Id: null,
+    empresaId: 1,
+    trabajadoresAsignados: [1, 5, 7, 8],
+    responsable: 7,
+    modalidad: 'presencial',
+    hora: '09:00',
+    plantillaId: null,
+    capacitadores: 'Ing. Roberto Fernández',
   },
   {
     id: 2,
-    nombre: 'Manejo Seguro de Maquinaria Agrícola',
-    descripcion: 'Capacitación sobre el uso correcto y seguro de equipos agrícolas',
-    fechaProgramada: '2025-02-20',
-    actividadRelacionada: 'Agricultura',
+    nombre: 'Uso Correcto de EPP en Zona Minera',
+    descripcion: 'Capacitación sobre el uso, cuidado y renovación del equipo de protección personal en áreas de riesgo',
+    fechaProgramada: '2025-02-10',
+    actividadRelacionada: 'Minería',
     estado: 'En curso',
-    empresasAsignadas: [3],
-    fechaCreacion: '2025-01-12',
-  },
-  {
-    id: 3,
-    nombre: 'Bienestar Animal en Avicultura',
-    descripcion: 'Capacitación sobre el manejo ético y seguro de aves de corral',
-    fechaProgramada: '2025-01-25',
-    actividadRelacionada: 'Avicultura',
-    estado: 'Finalizada',
-    empresasAsignadas: [4],
-    fechaCreacion: '2025-01-05',
+    empresasAsignadas: [1],
+    fechaCreacion: '2025-01-20',
+    anexo1ItemId: null,
+    anexo1Id: null,
+    empresaId: 1,
+    trabajadoresAsignados: [7, 8, 9, 10],
+    responsable: 8,
+    modalidad: 'presencial',
+    hora: '10:00',
+    plantillaId: null,
+    capacitadores: 'Téc. Lucía Morales',
   },
 ];
 
@@ -77,6 +78,8 @@ export const crearCapacitacionDesdeItem = (itemId, anexo1Id, empresaId, datos) =
     anexo1Id: anexo1Id,
     empresaId: empresaId,
     fechaCreacion: new Date().toISOString().split('T')[0],
+    plantillaId: datos.plantillaId || null,
+    capacitadores: datos.capacitadores || '',
   };
   capacitaciones.push(nuevaCapacitacion);
   return nuevaCapacitacion;

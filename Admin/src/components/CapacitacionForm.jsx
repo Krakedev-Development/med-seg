@@ -1,14 +1,17 @@
 import { useState, useEffect } from 'react';
+import { filtrarPlantillasPorActividad } from '../data/plantillasCapacitacion';
 
 const CapacitacionForm = ({ onAddCapacitacion, onUpdateCapacitacion, editingCapacitacion, onCancel, companies, actividadesDisponibles, estadosCapacitacion, empresaId, employees = [] }) => {
   const [formData, setFormData] = useState({
     nombre: editingCapacitacion?.nombre || '',
     descripcion: editingCapacitacion?.descripcion || '',
-    fechaProgramada: editingCapacitacion?.fechaProgramada || '',
+    fechaProgramada: editingCapacitacion?.fechaProgramada || new Date().toISOString().split('T')[0],
     actividadRelacionada: editingCapacitacion?.actividadRelacionada || 'Minería',
     estado: editingCapacitacion?.estado || 'Programada',
     empresasAsignadas: editingCapacitacion?.empresasAsignadas || [],
     generarRegistroFirmas: false,
+    plantillaId: editingCapacitacion?.plantillaId || '',
+    capacitadores: editingCapacitacion?.capacitadores || '',
   });
 
   const handleChange = (e) => {
@@ -255,19 +258,34 @@ const CapacitacionForm = ({ onAddCapacitacion, onUpdateCapacitacion, editingCapa
         {editingCapacitacion ? 'Editar Capacitación' : 'Nueva Capacitación'}
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Nombre de la Capacitación *
-          </label>
-          <input
-            type="text"
-            name="nombre"
-            value={formData.nombre}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-            placeholder="Ej: Seguridad en Minería Subterránea"
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Nombre de la Capacitación *
+            </label>
+            <input
+              type="text"
+              name="nombre"
+              value={formData.nombre}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              placeholder="Ej: Seguridad en Minería Subterránea"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Capacitador(es)
+            </label>
+            <input
+              type="text"
+              name="capacitadores"
+              value={formData.capacitadores}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              placeholder="Ej: Dr. Carlos Ramírez, Ing. María López"
+            />
+          </div>
         </div>
 
         <div>
@@ -329,6 +347,25 @@ const CapacitacionForm = ({ onAddCapacitacion, onUpdateCapacitacion, editingCapa
             >
               {estadosCapacitacion.map(estado => (
                 <option key={estado} value={estado}>{estado}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Plantilla de documento
+            </label>
+            <select
+              name="plantillaId"
+              value={formData.plantillaId}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+            >
+              <option value="">Seleccione una plantilla</option>
+              {filtrarPlantillasPorActividad().map(pl => (
+                <option key={pl.id} value={pl.id}>
+                  {pl.icono} {pl.nombre} ({pl.categoria})
+                </option>
               ))}
             </select>
           </div>

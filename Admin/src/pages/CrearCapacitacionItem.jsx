@@ -5,6 +5,7 @@ import { initialEmployees } from '../data/employeesData';
 import { initialProfesionales } from '../data/profesionalesData';
 import { SECCIONES_SST } from '../components/documentos/anexo1/anexo1';
 import { crearCapacitacionDesdeItem } from '../data/capacitacionesData';
+import { filtrarPlantillasPorActividad } from '../data/plantillasCapacitacion';
 
 const CrearCapacitacionItem = ({ 
   companies = initialCompanies, 
@@ -18,6 +19,7 @@ const CrearCapacitacionItem = ({
 
   const empresa = companies.find(c => c.id === parseInt(empresaId));
   const trabajadoresEmpresa = employees.filter(e => e.companyId === parseInt(empresaId));
+  const plantillasDisponibles = filtrarPlantillasPorActividad();
   
   // Obtener el ítem del Anexo 1
   const item = useMemo(() => {
@@ -32,11 +34,13 @@ const CrearCapacitacionItem = ({
 
   const [formData, setFormData] = useState({
     titulo: '',
+    capacitadores: '',
     fecha: new Date().toISOString().split('T')[0],
     hora: '',
     modalidad: 'presencial',
     responsable: '',
     trabajadores: [],
+    plantillaId: '',
   });
 
   const [busquedaTrabajador, setBusquedaTrabajador] = useState('');
@@ -130,17 +134,31 @@ const CrearCapacitacionItem = ({
       {/* Formulario */}
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Título *
-            </label>
-            <input
-              type="text"
-              value={formData.titulo}
-              onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
-              placeholder="Ej: Capacitación en Seguridad y Salud en el Trabajo"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Título *
+              </label>
+              <input
+                type="text"
+                value={formData.titulo}
+                onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="Ej: Capacitación en Seguridad y Salud en el Trabajo"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Capacitador(es)
+              </label>
+              <input
+                type="text"
+                value={formData.capacitadores}
+                onChange={(e) => setFormData({ ...formData, capacitadores: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                placeholder="Ej: Dr. Carlos Ramírez, Ing. María López"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -168,7 +186,7 @@ const CrearCapacitacionItem = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Modalidad *
@@ -195,6 +213,23 @@ const CrearCapacitacionItem = ({
                 {profesionales.map(prof => (
                   <option key={prof.id} value={prof.id}>
                     {prof.nombre} {prof.apellido} - {prof.especialidad}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Plantilla de documento *
+              </label>
+              <select
+                value={formData.plantillaId}
+                onChange={(e) => setFormData({ ...formData, plantillaId: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+              >
+                <option value="">Seleccione una plantilla</option>
+                {plantillasDisponibles.map(pl => (
+                  <option key={pl.id} value={pl.id}>
+                    {pl.icono} {pl.nombre}
                   </option>
                 ))}
               </select>

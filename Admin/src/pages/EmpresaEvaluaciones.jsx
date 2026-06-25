@@ -72,7 +72,7 @@ const EmpresaEvaluaciones = ({ companies = initialCompanies, employees = initial
   // Filtrar solo evaluaciones de esta empresa
   const evaluacionesFiltradas = useMemo(() => {
     if (!evaluaciones || !Array.isArray(evaluaciones)) return [];
-    return evaluaciones.filter(evaluacion => {
+    const filtered = evaluaciones.filter(evaluacion => {
       if (!evaluacion) return false;
       const perteneceEmpresa = evaluacion.empresaId === empresaIdNum;
       if (!perteneceEmpresa) return false;
@@ -83,6 +83,9 @@ const EmpresaEvaluaciones = ({ companies = initialCompanies, employees = initial
       
       return matchSearch && matchEstado;
     });
+
+    const estadoOrden = { 'Activa': 0, 'Borrador': 1, 'Finalizada': 2 };
+    return filtered.sort((a, b) => (estadoOrden[a.estado] ?? 3) - (estadoOrden[b.estado] ?? 3));
   }, [evaluaciones, searchTerm, filterEstado, empresaIdNum]);
 
   const handleAddEvaluacion = (newEvaluacion) => {
@@ -193,7 +196,10 @@ const EmpresaEvaluaciones = ({ companies = initialCompanies, employees = initial
           onUpdateEvaluacion={handleUpdateEvaluacion}
           editingEvaluacion={editingEvaluacion}
           onCancel={handleCancel}
-          capacitaciones={capacitaciones.filter(c => c.empresaId === empresaIdNum)}
+          capacitaciones={capacitaciones.filter(c =>
+            (c.empresaId && c.empresaId === empresaIdNum) ||
+            (c.empresasAsignadas && c.empresasAsignadas.includes(empresaIdNum))
+          )}
           empresaId={empresaIdNum}
         />
       )}
@@ -226,7 +232,7 @@ const EmpresaEvaluaciones = ({ companies = initialCompanies, employees = initial
       </div>
 
       {/* Lista de evaluaciones */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {evaluacionesFiltradas.map(evaluacion => (
           <div key={evaluacion.id} className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
             <div className="flex items-start justify-between mb-4">

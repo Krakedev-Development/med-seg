@@ -12,7 +12,7 @@ const EvaluacionForm = ({
     capacitacionId: editingEvaluacion?.capacitacionId || '',
     nombre: editingEvaluacion?.nombre || '',
     descripcion: editingEvaluacion?.descripcion || '',
-    fechaLimite: editingEvaluacion?.fechaLimite || '',
+    fechaLimite: editingEvaluacion?.fechaLimite || new Date().toISOString().split('T')[0],
     estado: editingEvaluacion?.estado || 'Borrador',
     preguntas: editingEvaluacion?.preguntas || [],
   });
@@ -357,9 +357,13 @@ const EvaluacionForm = ({
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
             >
               <option value="">Seleccione una capacitación</option>
-              {capacitaciones && Array.isArray(capacitaciones) && capacitaciones.map(cap => (
-                <option key={cap?.id} value={cap?.id}>{cap?.nombre || 'Sin nombre'}</option>
-              ))}
+              {capacitaciones && Array.isArray(capacitaciones) && [...capacitaciones]
+                .sort((a, b) => new Date(b.fechaProgramada) - new Date(a.fechaProgramada))
+                .map(cap => (
+                  <option key={cap?.id} value={cap?.id}>
+                    {cap?.nombre || 'Sin nombre'} — {new Date(cap?.fechaProgramada).toLocaleDateString('es-ES')}
+                  </option>
+                ))}
             </select>
           </div>
 
