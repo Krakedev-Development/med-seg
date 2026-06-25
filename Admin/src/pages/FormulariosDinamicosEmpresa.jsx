@@ -729,6 +729,19 @@ const categories = [
   { name: 'Inspecciones / Otros', icon: '🔍' },
 ];
 
+const tipoIconos = {
+  induccion: '📖',
+  comite: '📋',
+  registro: '⏰',
+  mantenimiento: '⚙️',
+  permiso: '🧗',
+  epp: '🦺',
+  firma: '✍️',
+  inspeccion: '🔍',
+  checklist: '✅',
+  'ficha-medica': '🩺'
+};
+
 const FormulariosDinamicosEmpresa = ({ companies = initialCompanies, employees = initialEmployees }) => {
   const { empresaId } = useParams();
   const navigate = useNavigate();
@@ -1140,7 +1153,7 @@ const FormulariosDinamicosEmpresa = ({ companies = initialCompanies, employees =
             <p className="mt-1 text-xs text-gray-500">Prueba cambiando tu búsqueda o desactivando el Filtro Inteligente.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
             {templatesFiltrados.map((temp) => {
               const isHabilitado = documentosHabilitadosIds.includes(temp.id);
               return (
@@ -1249,11 +1262,16 @@ const FormulariosDinamicosEmpresa = ({ companies = initialCompanies, employees =
                 key={doc.id}
                 className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors flex items-center justify-between"
               >
-                <div>
-                  <p className="font-medium text-gray-800">{doc.titulo}</p>
-                  <p className="text-sm text-gray-500">
-                    {doc.tipo} • {doc.fechaCreacion} • {doc.estado}
-                  </p>
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl p-2 bg-gray-50 rounded-xl border border-gray-150 flex items-center justify-center shrink-0 shadow-sm">
+                    {tipoIconos[doc.tipo] || '📄'}
+                  </span>
+                  <div>
+                    <p className="font-medium text-gray-800">{doc.titulo}</p>
+                    <p className="text-sm text-gray-500">
+                      {doc.tipo} • {doc.fechaCreacion} • {doc.estado}
+                    </p>
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   <button
