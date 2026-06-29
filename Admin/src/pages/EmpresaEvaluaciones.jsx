@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import EvaluacionForm from '../components/EvaluacionForm';
-import { evaluaciones as initialEvaluaciones } from '../data/evaluacionesData';
+import { evaluaciones as initialEvaluaciones, respuestasEvaluaciones } from '../data/evaluacionesData';
 import { capacitaciones } from '../data/capacitacionesData';
 import { initialCompanies } from '../data/companiesData';
 import { initialEmployees } from '../data/employeesData';
@@ -87,6 +87,15 @@ const EmpresaEvaluaciones = ({ companies = initialCompanies, employees = initial
     const estadoOrden = { 'Activa': 0, 'Borrador': 1, 'Finalizada': 2 };
     return filtered.sort((a, b) => (estadoOrden[a.estado] ?? 3) - (estadoOrden[b.estado] ?? 3));
   }, [evaluaciones, searchTerm, filterEstado, empresaIdNum]);
+
+  const estadisticas = useMemo(() => {
+    const respuestasEmpresa = respuestasEvaluaciones.filter(r => r.empresaId === empresaIdNum);
+    const total = respuestasEmpresa.length;
+    const respondidas = respuestasEmpresa.filter(r => r.estado === 'Respondida').length;
+    const pendientes = total - respondidas;
+    const porcentajeRespuestas = total > 0 ? ((respondidas / total) * 100).toFixed(1) : 0;
+    return { total, respondidas, pendientes, porcentajeRespuestas };
+  }, [empresaIdNum]);
 
   const handleAddEvaluacion = (newEvaluacion) => {
     // Asegurar que la evaluación pertenece a esta empresa
@@ -204,6 +213,26 @@ const EmpresaEvaluaciones = ({ companies = initialCompanies, employees = initial
         />
       )}
 
+      {/* Estadísticas */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <p className="text-sm text-gray-600 mb-1">Total de Respuestas</p>
+          <p className="text-3xl font-bold text-gray-800">{estadisticas.total}</p>
+        </div>
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <p className="text-sm text-gray-600 mb-1">Respondidas</p>
+          <p className="text-3xl font-bold text-green-600">{estadisticas.respondidas}</p>
+        </div>
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <p className="text-sm text-gray-600 mb-1">Pendientes</p>
+          <p className="text-3xl font-bold text-yellow-600">{estadisticas.pendientes}</p>
+        </div>
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <p className="text-sm text-gray-600 mb-1">% de Respuestas</p>
+          <p className="text-3xl font-bold text-primary">{estadisticas.porcentajeRespuestas}%</p>
+        </div>
+      </div>
+
       {/* Filtros y búsqueda */}
       <div className="bg-white rounded-lg shadow-md p-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -293,7 +322,7 @@ const EmpresaEvaluaciones = ({ companies = initialCompanies, employees = initial
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
-                    Ver Seguimiento
+                    Ver Resultados
                   </button>
                 </>
               )}
@@ -306,7 +335,7 @@ const EmpresaEvaluaciones = ({ companies = initialCompanies, employees = initial
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    Ver Seguimiento (Finalizada)
+                    Ver Resultados (Finalizada)
                   </button>
                 </>
               )}

@@ -767,7 +767,7 @@ const FormulariosDinamicosEmpresa = ({ companies = initialCompanies, employees =
   });
 
   const empresa = companies.find(c => c.id === parseInt(empresaId));
-  const documentosEmpresa = getDocumentosByEmpresa(parseInt(empresaId));
+  const documentosEmpresa = getDocumentosByEmpresa(parseInt(empresaId)).filter(d => d.discriminador !== 'medico');
 
   // Inicializar plantillas habilitadas recomendadas para la empresa por defecto
   const [documentosHabilitadosIds, setDocumentosHabilitadosIds] = useState(() => {

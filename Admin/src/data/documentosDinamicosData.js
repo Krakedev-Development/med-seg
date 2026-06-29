@@ -7,6 +7,7 @@ export let documentosDinamicos = [
 
   // 1. Inducción Mineria
   {
+    discriminador: 'general',
     id: 'IND-001',
     tipo: 'induccion',
     empresaId: 1,
@@ -26,6 +27,7 @@ export let documentosDinamicos = [
 
   // 2. Reinducción SSO
   {
+    discriminador: 'general',
     id: 'IND-002',
     tipo: 'induccion',
     empresaId: 1,
@@ -45,6 +47,7 @@ export let documentosDinamicos = [
 
   // 3. Acta Comité Paritario
   {
+    discriminador: 'general',
     id: 'COP-001',
     tipo: 'comite',
     empresaId: 1,
@@ -72,6 +75,7 @@ export let documentosDinamicos = [
 
   // 4. Certificado Comité
   {
+    discriminador: 'general',
     id: 'COP-002',
     tipo: 'comite',
     empresaId: 1,
@@ -99,6 +103,7 @@ export let documentosDinamicos = [
 
   // 5. Control Asistencia
   {
+    discriminador: 'general',
     id: 'REG-001',
     tipo: 'registro',
     empresaId: 1,
@@ -126,6 +131,7 @@ export let documentosDinamicos = [
 
   // 6. Mantenimiento Cargadora
   {
+    discriminador: 'general',
     id: 'MAN-001',
     tipo: 'mantenimiento',
     empresaId: 1,
@@ -154,6 +160,7 @@ export let documentosDinamicos = [
 
   // 7. Mantenimiento Polvorín
   {
+    discriminador: 'general',
     id: 'MAN-002',
     tipo: 'mantenimiento',
     empresaId: 1,
@@ -182,6 +189,7 @@ export let documentosDinamicos = [
 
   // 8. Mantenimiento Concentrador
   {
+    discriminador: 'general',
     id: 'MAN-003',
     tipo: 'mantenimiento',
     empresaId: 1,
@@ -210,6 +218,7 @@ export let documentosDinamicos = [
 
   // 9. Permiso Trabajo en Alturas
   {
+    discriminador: 'general',
     id: 'PER-001',
     tipo: 'permiso',
     empresaId: 1,
@@ -238,6 +247,7 @@ export let documentosDinamicos = [
 
   // 10. Permiso Espacios Confinados
   {
+    discriminador: 'general',
     id: 'PER-002',
     tipo: 'permiso',
     empresaId: 1,
@@ -266,6 +276,7 @@ export let documentosDinamicos = [
 
   // 11. Permiso Trabajo en Caliente
   {
+    discriminador: 'general',
     id: 'PER-003',
     tipo: 'permiso',
     empresaId: 1,
@@ -294,6 +305,7 @@ export let documentosDinamicos = [
 
   // 12. Entrega EPP
   {
+    discriminador: 'general',
     id: 'EPP-001',
     tipo: 'epp',
     empresaId: 1,
@@ -322,6 +334,7 @@ export let documentosDinamicos = [
 
   // 13. Registro Firmas Charla
   {
+    discriminador: 'general',
     id: 'FIR-001',
     tipo: 'firma',
     empresaId: 1,
@@ -349,6 +362,7 @@ export let documentosDinamicos = [
 
   // 14. Inspección Botiquín
   {
+    discriminador: 'general',
     id: 'INS-001',
     tipo: 'inspeccion',
     empresaId: 1,
@@ -377,6 +391,7 @@ export let documentosDinamicos = [
 
   // 15. Inspección Extintores
   {
+    discriminador: 'general',
     id: 'INS-002',
     tipo: 'inspeccion',
     empresaId: 1,
@@ -405,6 +420,7 @@ export let documentosDinamicos = [
 
   // 16. Checklist SSO
   {
+    discriminador: 'general',
     id: 'CHK-001',
     tipo: 'checklist',
     empresaId: 1,
@@ -437,6 +453,7 @@ export let documentosDinamicos = [
 
   // 1. Inducción Cocina
   {
+    discriminador: 'general',
     id: 'IND-003',
     tipo: 'induccion',
     empresaId: 2,
@@ -456,6 +473,7 @@ export let documentosDinamicos = [
 
   // 2. Ficha Médica
   {
+    discriminador: 'medico',
     id: 'FME-001',
     tipo: 'ficha-medica',
     empresaId: 2,
@@ -493,11 +511,18 @@ export const getDocumentosByItem = (itemId) => {
   return documentosDinamicos.filter(doc => doc.vinculadoAItem === itemId);
 };
 
+// Función para obtener documentos por empresa y discriminador
+export const getDocumentosByEmpresaYDiscriminador = (empresaId, discriminador) => {
+  return documentosDinamicos.filter(doc => doc.empresaId === empresaId && doc.discriminador === discriminador)
+    .sort((a, b) => new Date(b.fechaCreacion) - new Date(a.fechaCreacion));
+};
+
 // Función para crear un nuevo documento dinámico
-export const crearDocumentoDinamico = (tipo, empresaId, datos, empleadoId = null) => {
+export const crearDocumentoDinamico = (tipo, empresaId, datos, empleadoId = null, discriminador = 'general') => {
   const nuevoId = `DOC-${String(documentosDinamicos.length + 1).padStart(3, '0')}`;
   const nuevoDocumento = {
     id: nuevoId,
+    discriminador,
     tipo,
     empresaId,
     empleadoId,

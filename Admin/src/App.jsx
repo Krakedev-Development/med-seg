@@ -24,7 +24,6 @@ import EnviarEvaluacionPage from './pages/EnviarEvaluacionPage';
 import SeguimientoEvaluacion from './pages/SeguimientoEvaluacion';
 import EmpresaCapacitaciones from './pages/EmpresaCapacitaciones';
 import EmpresaEvaluaciones from './pages/EmpresaEvaluaciones';
-import EmpresaResultados from './pages/EmpresaResultados';
 import Anexo1 from './pages/Anexo1';
 import GestionAnexo1 from './pages/GestionAnexo1';
 import EditorAnexo1 from './pages/EditorAnexo1';
@@ -42,6 +41,7 @@ import FormulariosDinamicos from './pages/FormulariosDinamicos';
 import RepositorioGeneral from './pages/RepositorioGeneral';
 import EmpresaDocumentos from './pages/EmpresaDocumentos';
 import FormulariosDinamicosEmpresa from './pages/FormulariosDinamicosEmpresa';
+import EmpresaMediDocs from './pages/EmpresaMediDocs';
 import MatrizEmpleados from './pages/MatrizEmpleados';
 import RegistroActividades from './pages/RegistroActividades';
 
@@ -263,6 +263,14 @@ function App() {
                           } 
                         />
                         <Route 
+                          path="medidocs" 
+                          element={
+                            <ProtectedRoute>
+                              <EmpresaMediDocs companies={companies} />
+                            </ProtectedRoute>
+                          } 
+                        />
+                        <Route 
                           path="matriz-empleados" 
                           element={
                             <ProtectedRoute>
@@ -283,14 +291,6 @@ function App() {
                           element={
                             <ProtectedRoute>
                               <CrearCapacitacionItem companies={companies} employees={employees} profesionales={profesionales} />
-                            </ProtectedRoute>
-                          } 
-                        />
-                        <Route 
-                          path="item/:itemId/evaluacion" 
-                          element={
-                            <ProtectedRoute>
-                              <CrearEvaluacionItem companies={companies} employees={employees} />
                             </ProtectedRoute>
                           } 
                         />
@@ -331,14 +331,6 @@ function App() {
                           element={
                             <ProtectedRoute>
                               <SeguimientoEvaluacion companies={companies} employees={employees} />
-                            </ProtectedRoute>
-                          } 
-                        />
-                        <Route 
-                          path="resultados" 
-                          element={
-                            <ProtectedRoute>
-                              <EmpresaResultados employees={employees} companies={companies} />
                             </ProtectedRoute>
                           } 
                         />

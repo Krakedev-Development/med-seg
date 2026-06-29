@@ -22,10 +22,13 @@ const EmpresaAnexo1View = ({ companies = initialCompanies }) => {
   useEffect(() => {
     const pathParts = location.pathname.split('/');
     const lastPart = pathParts[pathParts.length - 1];
-    
+
     // Detectar si está en el editor
     if (location.pathname.includes('/editor')) {
       setActiveTab('checklist');
+    // Detectar subrutas de evaluaciones
+    } else if (location.pathname.includes('/evaluaciones/')) {
+      setActiveTab('evaluaciones');
     } else if (lastPart && lastPart !== 'anexo1' && lastPart !== empresaId && !pathParts.includes('editor')) {
       setActiveTab(lastPart);
     } else if (pathParts[pathParts.length - 1] === empresaId || pathParts[pathParts.length - 2] === 'empresa') {
@@ -61,10 +64,10 @@ const EmpresaAnexo1View = ({ companies = initialCompanies }) => {
     { id: 'estado', label: 'Estado General', icon: null },
     { id: 'checklist', label: 'Checklist Anexo 1', icon: null },
     { id: 'formularios-dinamicos', label: 'Formularios Dinámicos', icon: null },
+    { id: 'medidocs', label: 'Medi Docs', icon: null },
     { id: 'matriz-empleados', label: 'Matriz de Empleados', icon: null },
     { id: 'capacitaciones', label: 'Capacitaciones', icon: null },
     { id: 'evaluaciones', label: 'Evaluaciones', icon: null },
-    { id: 'resultados', label: 'Resultados', icon: null },
     { id: 'historial', label: 'Historial de Inspecciones', icon: null },
     { id: 'repositorio', label: 'Repositorio', icon: null }
   ];
