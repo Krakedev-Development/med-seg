@@ -74,35 +74,6 @@ export const documentoTemplates = {
       tipoActividad: ['Otros']
     }
   ],
-  'FICHA MÉDICA': [
-    {
-      id: 'ficha-medica-evaluacion-retiro',
-      nombre: 'Ficha Médica - Evaluación de Retiro',
-      descripcion: 'Evaluación médica ocupacional para retiro de trabajadores',
-      icono: '🏥',
-      categoria: 'FICHA MÉDICA',
-      requiereEmpleado: true,
-      tipoActividad: null // Ficha médica es general, no se filtra por actividad
-    },
-    {
-      id: 'ficha-medica-ingreso',
-      nombre: 'Ficha Médica - Ingreso',
-      descripcion: 'Evaluación médica ocupacional para ingreso de nuevos trabajadores',
-      icono: '📋',
-      categoria: 'FICHA MÉDICA',
-      requiereEmpleado: true,
-      tipoActividad: null // Ficha médica es general, no se filtra por actividad
-    },
-    {
-      id: 'ficha-medica-periodica',
-      nombre: 'Ficha Médica - Periódica',
-      descripcion: 'Evaluación médica ocupacional periódica de trabajadores',
-      icono: '🩺',
-      categoria: 'FICHA MÉDICA',
-      requiereEmpleado: true,
-      tipoActividad: null // Ficha médica es general, no se filtra por actividad
-    }
-  ],
   'INSPECCIONES': [
     {
       id: 'inspeccion-areas-mineria',
@@ -182,11 +153,6 @@ export const documentoTemplates = {
 // Función helper para obtener plantillas por categoría y actividad
 export const getTemplatesByCategory = (categoria, tipoActividad = null) => {
   const templates = documentoTemplates[categoria] || [];
-  
-  // Si es FICHA MÉDICA, siempre retornar todas (no se filtra por actividad)
-  if (categoria === 'FICHA MÉDICA') {
-    return templates;
-  }
   
   // Si no hay actividad seleccionada, retornar todas las plantillas
   if (!tipoActividad) {

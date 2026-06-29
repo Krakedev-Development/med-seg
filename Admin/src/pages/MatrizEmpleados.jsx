@@ -4,6 +4,7 @@ import { initialCompanies } from '../data/companiesData';
 import { initialEmployees } from '../data/employeesData';
 import { getDocumentosByEmpresa, crearDocumentoDinamico, documentosDinamicos } from '../data/documentosDinamicosData';
 import { documentoTemplates } from '../data/documentoTemplates';
+import { medDocsTemplatesIndividuales } from '../data/medDocsTemplates';
 import FichaMedicaEvaluacionRetiro from '../components/documentos/fichaMedica/FichaMedicaEvaluacionRetiro';
 
 const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmployees, setEmployees }) => {
@@ -14,7 +15,7 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
   
   // Accordion row state
   const [filaExpandida, setFilaExpandida] = useState(null); // ID del empleado expandido
-  const [pestanaActiva, setPestanaActiva] = useState('clinicos'); // 'clinicos' | 'documentos' | 'nuevo_doc'
+  const [pestanaActiva, setPestanaActiva] = useState('documentos'); // 'documentos' | 'ficha_medica' | 'clinicos' | 'nuevo_doc'
 
   // Modals visibility
   const [mostrarModalAgregar, setMostrarModalAgregar] = useState(false);
@@ -54,7 +55,7 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
   useEffect(() => {
     if (location.state?.empleadoId) {
       setFilaExpandida(location.state.empleadoId);
-      setPestanaActiva(location.state.pestanaActiva || 'clinicos');
+      setPestanaActiva(location.state.pestanaActiva || 'documentos');
       const scrollY = location.state.scrollY || 0;
       requestAnimationFrame(() => {
         const scrollContainer = document.querySelector('[class*="overflow-y-auto"]');
@@ -472,7 +473,7 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
       setFilaExpandida(null);
     } else {
       setFilaExpandida(empleadoId);
-      setPestanaActiva('clinicos'); // Reset a la primera pestaña al expandir
+      setPestanaActiva('documentos'); // Reset a la primera pestaña al expandir
     }
   };
 
@@ -749,17 +750,6 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
                               <div className="flex border-b border-gray-200 bg-gray-50 px-2 pt-2">
                                 <button
                                   type="button"
-                                  onClick={(e) => { e.stopPropagation(); setPestanaActiva('clinicos'); }}
-                                  className={`px-4 py-2 text-xs font-bold transition-all rounded-t-md ${
-                                    pestanaActiva === 'clinicos'
-                                      ? 'text-primary border border-gray-200 border-b-transparent bg-white font-extrabold'
-                                      : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100/50'
-                                  }`}
-                                >
-                                  Datos Clínicos y Constantes
-                                </button>
-                                <button
-                                  type="button"
                                   onClick={(e) => { e.stopPropagation(); setPestanaActiva('documentos'); }}
                                   className={`px-4 py-2 text-xs font-bold transition-all rounded-t-md ${
                                     pestanaActiva === 'documentos'
@@ -768,6 +758,28 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
                                   }`}
                                 >
                                   Fichas y Documentos ({documentosDelEmpleado.length})
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={(e) => { e.stopPropagation(); setPestanaActiva('ficha_medica'); }}
+                                  className={`px-4 py-2 text-xs font-bold transition-all rounded-t-md ${
+                                    pestanaActiva === 'ficha_medica'
+                                      ? 'text-red-600 border border-gray-200 border-b-transparent bg-white font-extrabold'
+                                      : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100/50'
+                                  }`}
+                                >
+                                  + Crear Ficha Médica
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={(e) => { e.stopPropagation(); setPestanaActiva('clinicos'); }}
+                                  className={`px-4 py-2 text-xs font-bold transition-all rounded-t-md ${
+                                    pestanaActiva === 'clinicos'
+                                      ? 'text-primary border border-gray-200 border-b-transparent bg-white font-extrabold'
+                                      : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100/50'
+                                  }`}
+                                >
+                                  Datos Clínicos y Constantes
                                 </button>
                                 <button
                                   type="button"
@@ -998,6 +1010,55 @@ const MatrizEmpleados = ({ companies = initialCompanies, employees = initialEmpl
                                           </button>
                                         ));
                                       })}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* PESTAÑA 4: CREAR FICHA MÉDICA */}
+                                {pestanaActiva === 'ficha_medica' && (
+                                  <div className="space-y-3">
+                                    <p className="text-xs text-gray-500 font-semibold mb-1">Documentos médicos individuales para este empleado:</p>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                                      {medDocsTemplatesIndividuales.map((tmpl) => (
+                                        <button
+                                          type="button"
+                                          key={tmpl.id}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (tmpl.datos?.tipo === 'ficha-medica') {
+                                              handleAbrirFichaOcupacional(empleado);
+                                            } else {
+                                              const scrollContainer = document.querySelector('[class*="overflow-y-auto"]');
+                                              navigate('/formularios/crear', {
+                                                state: {
+                                                  empresa,
+                                                  empleado,
+                                                  plantilla: { ...tmpl, categoria: tmpl.categoria },
+                                                  tipo: tmpl.categoria,
+                                                  returnTo: {
+                                                    empresaId,
+                                                    empleadoId: empleado.id,
+                                                    pestanaActiva: 'ficha_medica',
+                                                    scrollY: scrollContainer ? scrollContainer.scrollTop : 0
+                                                  }
+                                                }
+                                              });
+                                            }
+                                          }}
+                                          className="bg-white p-3 rounded-lg border border-gray-200 hover:border-red-400 hover:shadow-md transition-all text-left flex items-start gap-2.5 w-full group"
+                                        >
+                                          <div className="text-xl p-1 bg-red-50 rounded-lg group-hover:bg-red-100 group-hover:text-red-600 transition-colors">
+                                            {tmpl.icono || '🩺'}
+                                          </div>
+                                          <div className="flex-1 min-w-0">
+                                            <p className="text-xs font-bold text-gray-800 truncate group-hover:text-red-600 transition-colors">{tmpl.nombre}</p>
+                                            <p className="text-[10px] text-gray-400 mt-0.5 line-clamp-2 leading-tight">{tmpl.descripcion}</p>
+                                            <span className="inline-block px-1.5 py-0.5 bg-red-50 text-red-600 rounded text-[9px] font-bold mt-1.5 uppercase border border-red-100">
+                                              {tmpl.categoria}
+                                            </span>
+                                          </div>
+                                        </button>
+                                      ))}
                                     </div>
                                   </div>
                                 )}
