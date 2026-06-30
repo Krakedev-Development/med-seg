@@ -61,13 +61,23 @@ function App() {
   const [profesionales, setProfesionales] = useState(initialProfesionales);
   const [documents, setDocuments] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+  const [activeRolePreview, setActiveRolePreview] = useState('admin');
+  const [sidebarExpanded, setSidebarExpanded] = useState(false);
 
   // Cargar usuario desde localStorage al iniciar
   useEffect(() => {
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
       try {
-        setCurrentUser(JSON.parse(savedUser));
+        const user = JSON.parse(savedUser);
+        setCurrentUser(user);
+        if (user.rol === 'super_admin') {
+          setActiveRolePreview(localStorage.getItem('activeRolePreview') || 'admin');
+        } else if (user.rol === 'medico') {
+          setActiveRolePreview('medico');
+        } else {
+          setActiveRolePreview('sst');
+        }
       } catch (error) {
         console.error('Error al cargar usuario:', error);
       }
@@ -77,11 +87,19 @@ function App() {
   const handleLogin = (userData) => {
     setCurrentUser(userData);
     localStorage.setItem('currentUser', JSON.stringify(userData));
+    if (userData.rol === 'super_admin') {
+      setActiveRolePreview(localStorage.getItem('activeRolePreview') || 'admin');
+    } else if (userData.rol === 'medico') {
+      setActiveRolePreview('medico');
+    } else {
+      setActiveRolePreview('sst');
+    }
   };
 
   const handleLogout = () => {
     setCurrentUser(null);
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('activeRolePreview');
   };
 
   // Componente para rutas protegidas (admin)
@@ -139,9 +157,18 @@ function App() {
             path="/*"
             element={
               <div className="flex min-h-screen bg-gray-100">
-                <Sidebar />
-                <div className="flex-1 transition-all duration-300" style={{ marginLeft: '60px' }}>
-                  <Header currentUser={currentUser} onLogout={handleLogout} />
+                <Sidebar expanded={sidebarExpanded} setExpanded={setSidebarExpanded} />
+                <div className="flex-1 transition-all duration-300" style={{ marginLeft: sidebarExpanded ? '256px' : '60px' }}>
+                  <Header 
+                    currentUser={currentUser} 
+                    onLogout={handleLogout} 
+                    activeRolePreview={activeRolePreview}
+                    setActiveRolePreview={(role) => {
+                      setActiveRolePreview(role);
+                      localStorage.setItem('activeRolePreview', role);
+                    }}
+                    sidebarExpanded={sidebarExpanded}
+                  />
                   <main className="mt-16 p-6">
                     <Routes>
                       <Route 
@@ -220,7 +247,7 @@ function App() {
                         path="/anexo1/empresa/:empresaId" 
                         element={
                           <ProtectedRoute>
-                            <EmpresaAnexo1View companies={companies} />
+                             <EmpresaAnexo1View companies={companies} activeRolePreview={activeRolePreview} />
                           </ProtectedRoute>
                         } 
                       >

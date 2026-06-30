@@ -12,7 +12,7 @@ const ClipboardList = ({ className }) => (
   </svg>
 );
 
-const EmpresaAnexo1View = ({ companies = initialCompanies }) => {
+const EmpresaAnexo1View = ({ companies = initialCompanies, activeRolePreview }) => {
   const { empresaId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -50,16 +50,6 @@ const EmpresaAnexo1View = ({ companies = initialCompanies }) => {
     return tareasEmpresa.filter(t => t.estado === 'Pendiente' || t.estado === 'En revisión').length;
   }, [tareasEmpresa]);
 
-  if (!empresa) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <p className="text-gray-500">Empresa no encontrada</p>
-        </div>
-      </div>
-    );
-  }
-
   const tabs = [
     { id: 'estado', label: 'Estado General', icon: null },
     { id: 'checklist', label: 'Checklist Anexo 1', icon: null },
@@ -71,6 +61,15 @@ const EmpresaAnexo1View = ({ companies = initialCompanies }) => {
     { id: 'historial', label: 'Historial de Inspecciones', icon: null },
     { id: 'repositorio', label: 'Repositorio', icon: null }
   ];
+
+  // Filtrar pestañas por rol activo
+  const filteredTabs = useMemo(() => {
+    return tabs.filter(tab => {
+      if (activeRolePreview === 'sst' && tab.id === 'medidocs') return false;
+      if (activeRolePreview === 'medico' && tab.id === 'formularios-dinamicos') return false;
+      return true;
+    });
+  }, [activeRolePreview]);
 
   const handleTabChange = (tabId) => {
     setActiveTab(tabId);
@@ -85,6 +84,25 @@ const EmpresaAnexo1View = ({ companies = initialCompanies }) => {
       navigate(`/anexo1/empresa/${empresaId}/${tabId}`);
     }
   };
+
+  // Redirección de seguridad ante cambios de rol activo
+  useEffect(() => {
+    if (activeRolePreview === 'sst' && activeTab === 'medidocs') {
+      handleTabChange('estado');
+    } else if (activeRolePreview === 'medico' && activeTab === 'formularios-dinamicos') {
+      handleTabChange('estado');
+    }
+  }, [activeRolePreview, activeTab]);
+
+  if (!empresa) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <p className="text-gray-500">Empresa no encontrada</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-3">
@@ -114,14 +132,14 @@ const EmpresaAnexo1View = ({ companies = initialCompanies }) => {
         {/* Tabs de navegación integrados */}
         <div className="border-t border-gray-200">
           <nav className="flex -mb-px overflow-x-auto">
-            {tabs.map((tab) => (
+            {filteredTabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => handleTabChange(tab.id)}
                 className={`
                   px-4 py-2.5 text-sm font-medium border-b-2 transition-colors whitespace-nowrap
                   ${activeTab === tab.id
-                    ? 'border-primary text-primary'
+                    ? 'border-primary text-primary font-bold'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                   }
                 `}
@@ -135,7 +153,7 @@ const EmpresaAnexo1View = ({ companies = initialCompanies }) => {
 
       {/* Contenido según tab activo */}
       <div>
-        <Outlet />
+        <Outlet context={{ activeRolePreview }} />
       </div>
     </div>
   );
