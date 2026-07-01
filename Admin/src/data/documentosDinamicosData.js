@@ -7,6 +7,7 @@ export let documentosDinamicos = [
 
   // 1. Inducción Mineria
   {
+    discriminador: 'general',
     id: 'IND-001',
     tipo: 'induccion',
     empresaId: 1,
@@ -26,6 +27,7 @@ export let documentosDinamicos = [
 
   // 2. Reinducción SSO
   {
+    discriminador: 'general',
     id: 'IND-002',
     tipo: 'induccion',
     empresaId: 1,
@@ -45,6 +47,7 @@ export let documentosDinamicos = [
 
   // 3. Acta Comité Paritario
   {
+    discriminador: 'general',
     id: 'COP-001',
     tipo: 'comite',
     empresaId: 1,
@@ -72,6 +75,7 @@ export let documentosDinamicos = [
 
   // 4. Certificado Comité
   {
+    discriminador: 'general',
     id: 'COP-002',
     tipo: 'comite',
     empresaId: 1,
@@ -99,6 +103,7 @@ export let documentosDinamicos = [
 
   // 5. Control Asistencia
   {
+    discriminador: 'general',
     id: 'REG-001',
     tipo: 'registro',
     empresaId: 1,
@@ -126,6 +131,7 @@ export let documentosDinamicos = [
 
   // 6. Mantenimiento Cargadora
   {
+    discriminador: 'general',
     id: 'MAN-001',
     tipo: 'mantenimiento',
     empresaId: 1,
@@ -154,6 +160,7 @@ export let documentosDinamicos = [
 
   // 7. Mantenimiento Polvorín
   {
+    discriminador: 'general',
     id: 'MAN-002',
     tipo: 'mantenimiento',
     empresaId: 1,
@@ -182,6 +189,7 @@ export let documentosDinamicos = [
 
   // 8. Mantenimiento Concentrador
   {
+    discriminador: 'general',
     id: 'MAN-003',
     tipo: 'mantenimiento',
     empresaId: 1,
@@ -210,6 +218,7 @@ export let documentosDinamicos = [
 
   // 9. Permiso Trabajo en Alturas
   {
+    discriminador: 'general',
     id: 'PER-001',
     tipo: 'permiso',
     empresaId: 1,
@@ -238,6 +247,7 @@ export let documentosDinamicos = [
 
   // 10. Permiso Espacios Confinados
   {
+    discriminador: 'general',
     id: 'PER-002',
     tipo: 'permiso',
     empresaId: 1,
@@ -266,6 +276,7 @@ export let documentosDinamicos = [
 
   // 11. Permiso Trabajo en Caliente
   {
+    discriminador: 'general',
     id: 'PER-003',
     tipo: 'permiso',
     empresaId: 1,
@@ -294,6 +305,7 @@ export let documentosDinamicos = [
 
   // 12. Entrega EPP
   {
+    discriminador: 'general',
     id: 'EPP-001',
     tipo: 'epp',
     empresaId: 1,
@@ -322,6 +334,7 @@ export let documentosDinamicos = [
 
   // 13. Registro Firmas Charla
   {
+    discriminador: 'general',
     id: 'FIR-001',
     tipo: 'firma',
     empresaId: 1,
@@ -349,6 +362,7 @@ export let documentosDinamicos = [
 
   // 14. Inspección Botiquín
   {
+    discriminador: 'general',
     id: 'INS-001',
     tipo: 'inspeccion',
     empresaId: 1,
@@ -377,6 +391,7 @@ export let documentosDinamicos = [
 
   // 15. Inspección Extintores
   {
+    discriminador: 'general',
     id: 'INS-002',
     tipo: 'inspeccion',
     empresaId: 1,
@@ -405,6 +420,7 @@ export let documentosDinamicos = [
 
   // 16. Checklist SSO
   {
+    discriminador: 'general',
     id: 'CHK-001',
     tipo: 'checklist',
     empresaId: 1,
@@ -437,6 +453,7 @@ export let documentosDinamicos = [
 
   // 1. Inducción Cocina
   {
+    discriminador: 'general',
     id: 'IND-003',
     tipo: 'induccion',
     empresaId: 2,
@@ -456,6 +473,7 @@ export let documentosDinamicos = [
 
   // 2. Ficha Médica
   {
+    discriminador: 'medico',
     id: 'FME-001',
     tipo: 'ficha-medica',
     empresaId: 2,
@@ -479,6 +497,214 @@ export let documentosDinamicos = [
       fecha: '2025-01-20'
     },
     creadoPor: 'admin'
+  },
+
+  // =============================================
+  // FICHAS MÉDICAS EMPRESA 1 — Datos clínicos hardcodeados
+  // =============================================
+  {
+    id: 'FME-EMP1-001',
+    discriminador: 'medico',
+    tipo: 'ficha-medica',
+    empresaId: 1,
+    empleadoId: 1,
+    titulo: 'Ficha Médica Ocupacional — Juan Carlos Pérez García',
+    fechaCreacion: '2025-06-15',
+    estado: 'Publicado',
+    datos: {
+      tipo: 'ficha-medica',
+      puestoTrabajo: 'Operador de Maquinaria',
+      presionArterial: '125/82',
+      temperatura: '36.4°C',
+      frecuenciaCardiaca: '72 lpm',
+      frecuenciaRespiratoria: '16 rpm',
+      saturacionOxigeno: '98%',
+      peso: '78 kg',
+      talla: '172 cm',
+      indiceMasaCorporal: '26.4',
+      perimetroAbdominal: '92 cm',
+      antecedentesClinicosQuirurgicos: 'Apendicectomía (2010). Sin otras patologías relevantes.',
+      accidentesTrabajo: false,
+      accidentesTrabajoSi: false,
+      accidentesTrabajoEspecificar: '',
+      enfermedadesProfesionales: false,
+      enfermedadesProfesionalesSi: false,
+      enfermedadesProfesionalesEspecificar: '',
+      examenFisicoObservaciones: 'Examen físico general normal. Sin hallazgos patológicos. Auscultación cardiopulmonar normal.',
+      nombresApellidosProfesional: 'Dr. Rolando Maldonado',
+      codigoProfesional: '34567'
+    },
+    creadoPor: 'admin'
+  },
+  {
+    id: 'FME-EMP1-002',
+    discriminador: 'medico',
+    tipo: 'ficha-medica',
+    empresaId: 1,
+    empleadoId: 5,
+    titulo: 'Ficha Médica Ocupacional — Luis Miguel Vargas Ramírez',
+    fechaCreacion: '2025-06-15',
+    estado: 'Publicado',
+    datos: {
+      tipo: 'ficha-medica',
+      puestoTrabajo: 'Minero',
+      presionArterial: '130/85',
+      temperatura: '36.6°C',
+      frecuenciaCardiaca: '68 lpm',
+      frecuenciaRespiratoria: '14 rpm',
+      saturacionOxigeno: '97%',
+      peso: '82 kg',
+      talla: '168 cm',
+      indiceMasaCorporal: '29.0',
+      perimetroAbdominal: '96 cm',
+      antecedentesClinicosQuirurgicos: 'Asma leve en la infancia. Sin hospitalizaciones.',
+      accidentesTrabajo: false,
+      accidentesTrabajoSi: false,
+      accidentesTrabajoEspecificar: '',
+      enfermedadesProfesionales: false,
+      enfermedadesProfesionalesSi: false,
+      enfermedadesProfesionalesEspecificar: '',
+      examenFisicoObservaciones: 'Examen físico normal. Leve sobrepeso. Sin hallazgos patológicos.',
+      nombresApellidosProfesional: 'Dr. Rolando Maldonado',
+      codigoProfesional: '34567'
+    },
+    creadoPor: 'admin'
+  },
+  {
+    id: 'FME-EMP1-003',
+    discriminador: 'medico',
+    tipo: 'ficha-medica',
+    empresaId: 1,
+    empleadoId: 7,
+    titulo: 'Ficha Médica Ocupacional — Roberto Fernández Cáceres',
+    fechaCreacion: '2025-06-15',
+    estado: 'Publicado',
+    datos: {
+      tipo: 'ficha-medica',
+      puestoTrabajo: 'Ingeniero de Minas',
+      presionArterial: '118/75',
+      temperatura: '36.5°C',
+      frecuenciaCardiaca: '74 lpm',
+      frecuenciaRespiratoria: '15 rpm',
+      saturacionOxigeno: '99%',
+      peso: '70 kg',
+      talla: '175 cm',
+      indiceMasaCorporal: '22.9',
+      perimetroAbdominal: '82 cm',
+      antecedentesClinicosQuirurgicos: 'Sin antecedentes patológicos relevantes.',
+      accidentesTrabajo: false,
+      accidentesTrabajoSi: false,
+      accidentesTrabajoEspecificar: '',
+      enfermedadesProfesionales: false,
+      enfermedadesProfesionalesSi: false,
+      enfermedadesProfesionalesEspecificar: '',
+      examenFisicoObservaciones: 'Examen físico completo normal. Sin hallazgos. IMC en rango normal.',
+      nombresApellidosProfesional: 'Dra. María Fernanda López',
+      codigoProfesional: '34568'
+    },
+    creadoPor: 'admin'
+  },
+  {
+    id: 'FME-EMP1-004',
+    discriminador: 'medico',
+    tipo: 'ficha-medica',
+    empresaId: 1,
+    empleadoId: 8,
+    titulo: 'Ficha Médica Ocupacional — Patricia González Huamán',
+    fechaCreacion: '2025-06-15',
+    estado: 'Publicado',
+    datos: {
+      tipo: 'ficha-medica',
+      puestoTrabajo: 'Supervisora de Seguridad',
+      presionArterial: '110/70',
+      temperatura: '36.3°C',
+      frecuenciaCardiaca: '76 lpm',
+      frecuenciaRespiratoria: '16 rpm',
+      saturacionOxigeno: '99%',
+      peso: '62 kg',
+      talla: '160 cm',
+      indiceMasaCorporal: '24.2',
+      perimetroAbdominal: '74 cm',
+      antecedentesClinicosQuirurgicos: 'Cesárea (2018). Sin otras cirugías.',
+      accidentesTrabajo: false,
+      accidentesTrabajoSi: false,
+      accidentesTrabajoEspecificar: '',
+      enfermedadesProfesionales: false,
+      enfermedadesProfesionalesSi: false,
+      enfermedadesProfesionalesEspecificar: '',
+      examenFisicoObservaciones: 'Examen ginecológico normal. Examen físico general sin hallazgos patológicos.',
+      nombresApellidosProfesional: 'Dra. María Fernanda López',
+      codigoProfesional: '34568'
+    },
+    creadoPor: 'admin'
+  },
+  {
+    id: 'FME-EMP1-005',
+    discriminador: 'medico',
+    tipo: 'ficha-medica',
+    empresaId: 1,
+    empleadoId: 9,
+    titulo: 'Ficha Médica Ocupacional — Carlos Martínez Quispe',
+    fechaCreacion: '2025-06-15',
+    estado: 'Publicado',
+    datos: {
+      tipo: 'ficha-medica',
+      puestoTrabajo: 'Operador de Cargador Frontal',
+      presionArterial: '135/88',
+      temperatura: '36.7°C',
+      frecuenciaCardiaca: '70 lpm',
+      frecuenciaRespiratoria: '15 rpm',
+      saturacionOxigeno: '97%',
+      peso: '85 kg',
+      talla: '170 cm',
+      indiceMasaCorporal: '29.4',
+      perimetroAbdominal: '98 cm',
+      antecedentesClinicosQuirurgicos: 'Hipertensión arterial diagnosticada (2023). En tratamiento con Enalapril 10mg/día.',
+      accidentesTrabajo: true,
+      accidentesTrabajoSi: true,
+      accidentesTrabajoEspecificar: 'Esguince de tobillo derecho (2022) — recuperación completa',
+      enfermedadesProfesionales: false,
+      enfermedadesProfesionalesSi: false,
+      enfermedadesProfesionalesEspecificar: '',
+      examenFisicoObservaciones: 'PA elevada. Se recomienda control periódico. Sin otros hallazgos relevantes.',
+      nombresApellidosProfesional: 'Dr. Rolando Maldonado',
+      codigoProfesional: '34567'
+    },
+    creadoPor: 'admin'
+  },
+  {
+    id: 'FME-EMP1-006',
+    discriminador: 'medico',
+    tipo: 'ficha-medica',
+    empresaId: 1,
+    empleadoId: 10,
+    titulo: 'Ficha Médica Ocupacional — Miguel Torres Alvarado',
+    fechaCreacion: '2025-06-15',
+    estado: 'Publicado',
+    datos: {
+      tipo: 'ficha-medica',
+      puestoTrabajo: 'Soldador',
+      presionArterial: '122/78',
+      temperatura: '36.4°C',
+      frecuenciaCardiaca: '72 lpm',
+      frecuenciaRespiratoria: '14 rpm',
+      saturacionOxigeno: '98%',
+      peso: '75 kg',
+      talla: '169 cm',
+      indiceMasaCorporal: '26.3',
+      perimetroAbdominal: '88 cm',
+      antecedentesClinicosQuirurgicos: 'Sin antecedentes quirúrgicos. Miopía leve bilateral.',
+      accidentesTrabajo: true,
+      accidentesTrabajoSi: true,
+      accidentesTrabajoEspecificar: 'Quemadura superficial en antebrazo izquierdo (2023) — curado sin secuelas',
+      enfermedadesProfesionales: false,
+      enfermedadesProfesionalesSi: false,
+      enfermedadesProfesionalesEspecificar: '',
+      examenFisicoObservaciones: 'Examen físico normal. Sin hallazgos de importancia. Agudeza visual corregida.',
+      nombresApellidosProfesional: 'Dr. Rolando Maldonado',
+      codigoProfesional: '34567'
+    },
+    creadoPor: 'admin'
   }
 ];
 
@@ -493,11 +719,18 @@ export const getDocumentosByItem = (itemId) => {
   return documentosDinamicos.filter(doc => doc.vinculadoAItem === itemId);
 };
 
+// Función para obtener documentos por empresa y discriminador
+export const getDocumentosByEmpresaYDiscriminador = (empresaId, discriminador) => {
+  return documentosDinamicos.filter(doc => doc.empresaId === empresaId && doc.discriminador === discriminador)
+    .sort((a, b) => new Date(b.fechaCreacion) - new Date(a.fechaCreacion));
+};
+
 // Función para crear un nuevo documento dinámico
-export const crearDocumentoDinamico = (tipo, empresaId, datos, empleadoId = null) => {
+export const crearDocumentoDinamico = (tipo, empresaId, datos, empleadoId = null, discriminador = 'general') => {
   const nuevoId = `DOC-${String(documentosDinamicos.length + 1).padStart(3, '0')}`;
   const nuevoDocumento = {
     id: nuevoId,
+    discriminador,
     tipo,
     empresaId,
     empleadoId,

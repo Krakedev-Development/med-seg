@@ -12,7 +12,7 @@ const User = () => (
   </svg>
 );
 
-const Header = ({ currentUser, onLogout, isUserView = false }) => {
+const Header = ({ currentUser, onLogout, isUserView = false, activeRolePreview, setActiveRolePreview, sidebarExpanded }) => {
   const getRolColor = (rol) => {
     return rolesDescripcion[rol]?.color || 'bg-gray-600';
   };
@@ -23,13 +23,56 @@ const Header = ({ currentUser, onLogout, isUserView = false }) => {
     }
   };
 
+  const isSuperAdmin = currentUser?.rol === 'super_admin';
+
   return (
-    <header className="no-print bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 fixed top-0 right-0 z-10" style={{ left: isUserView ? '0' : '60px' }}>
-      <div className="flex-1">
+    <header className="no-print bg-white border-b border-gray-200 h-16 flex items-center justify-between px-6 fixed top-0 right-0 z-10 transition-all duration-300" style={{ left: isUserView ? '0' : (sidebarExpanded ? '256px' : '60px') }}>
+      <div className="flex-1 flex items-center">
         <h2 className="text-lg font-semibold text-gray-800">
           {isUserView ? 'Mi Portal de Documentos' : 'Panel Administrativo'}
         </h2>
       </div>
+
+      {/* Selector de Rol Preview (Solo visible para Super Admin) */}
+      {isSuperAdmin && !isUserView && (
+        <div className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-xl p-1 shadow-sm mr-4">
+          <span className="text-[9px] uppercase font-bold text-gray-400 px-2 tracking-wider">Vista Activa:</span>
+          <button
+            type="button"
+            onClick={() => setActiveRolePreview('admin')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-205 ${
+              activeRolePreview === 'admin'
+                ? 'bg-white text-gray-800 shadow-sm border border-gray-200'
+                : 'text-gray-500 hover:text-gray-800'
+            }`}
+          >
+            👑 Completo
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveRolePreview('sst')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-205 ${
+              activeRolePreview === 'sst'
+                ? 'bg-white text-primary shadow-sm border border-gray-200'
+                : 'text-gray-500 hover:text-gray-800'
+            }`}
+          >
+            🛡️ SST
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveRolePreview('medico')}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-205 ${
+              activeRolePreview === 'medico'
+                ? 'bg-white text-teal-600 shadow-sm border border-gray-200'
+                : 'text-gray-500 hover:text-gray-800'
+            }`}
+          >
+            🏥 Médico
+          </button>
+        </div>
+      )}
+
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 text-gray-700">

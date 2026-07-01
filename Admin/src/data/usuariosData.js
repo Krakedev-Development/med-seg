@@ -54,6 +54,17 @@ export const usuarios = [
     avatar: null,
     activo: true,
     fechaCreacion: '2024-10-05'
+  },
+  {
+    id: 6,
+    usuario: 'doctor',
+    password: '123',
+    nombre: 'Dra. Laura Flores',
+    rol: 'medico',
+    email: 'doctor@mediseg.com',
+    avatar: null,
+    activo: true,
+    fechaCreacion: '2025-01-10'
   }
 ];
 
@@ -88,6 +99,12 @@ export const rolesDescripcion = {
     descripcion: 'Crea y gestiona evaluaciones',
     color: 'bg-orange-600',
     permisos: ['ver_evaluaciones', 'crear_evaluaciones', 'editar_evaluaciones']
+  },
+  medico: {
+    nombre: 'Médico Ocupacional',
+    descripcion: 'Gestión de salud ocupacional y fichas médicas',
+    color: 'bg-teal-600',
+    permisos: ['ver_medidocs', 'crear_fichas_medicas', 'ver_clinicos']
   }
 };
 
@@ -119,4 +136,9 @@ CREDENCIALES DE ACCESO AL SISTEMA:
    Usuario: pedro.mendez
    Contraseña: pedro123
    Rol: Evaluador (Gestión de evaluaciones)
+
+6. Médico Ocupacional:
+   Usuario: doctor
+   Contraseña: 123
+   Rol: Médico Ocupacional (Medi Docs y Fichas Médicas)
 `;

@@ -71,7 +71,7 @@ const ActivityLog = () => (
   </svg>
 );
 
-const Sidebar = () => {
+const Sidebar = ({ expanded, setExpanded }) => {
   const location = useLocation();
 
   const menuItems = [
@@ -87,14 +87,10 @@ const Sidebar = () => {
 
   return (
     <aside
-      className="sidebar group fixed left-0 top-0 h-full bg-primary text-white transition-all duration-300 z-40 overflow-hidden no-print"
-      style={{ width: '60px' }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.width = '256px';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.width = '60px';
-      }}
+      className="sidebar group fixed left-0 top-0 h-full bg-primary text-white transition-all duration-300 z-40 overflow-hidden no-print shadow-lg"
+      style={{ width: expanded ? '256px' : '60px' }}
+      onMouseEnter={() => setExpanded(true)}
+      onMouseLeave={() => setExpanded(false)}
     >
       <div className="p-4 border-b border-gray-600 whitespace-nowrap overflow-hidden">
         <div className="flex justify-center items-center mb-3">
@@ -107,7 +103,7 @@ const Sidebar = () => {
             />
           </div>
         </div>
-        <div className="text-center group-hover:text-left transition-all hidden group-hover:block">
+        <div className={`text-center transition-all duration-300 ${expanded ? 'block' : 'hidden'}`}>
           <h1 className="text-base font-semibold truncate text-white">Medicina & Seguridad</h1>
           <p className="text-xs text-gray-200 mt-1 truncate">Panel Administrativo</p>
         </div>
@@ -127,7 +123,7 @@ const Sidebar = () => {
               }`}
             >
               <Icon />
-              <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-sm whitespace-normal break-words">{item.label}</span>
+              <span className={`transition-opacity duration-200 text-sm whitespace-normal break-words ${expanded ? 'opacity-100' : 'opacity-0'}`}>{item.label}</span>
             </Link>
           );
         })}

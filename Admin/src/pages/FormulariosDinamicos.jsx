@@ -68,7 +68,7 @@ const FormulariosDinamicos = ({ companies = initialCompanies, employees = initia
   const todosDocumentos = useMemo(() => {
     const docs = [];
     companies.forEach(empresa => {
-      const docsEmpresa = getDocumentosByEmpresa(empresa.id);
+      const docsEmpresa = getDocumentosByEmpresa(empresa.id).filter(d => d.discriminador !== 'medico');
       docsEmpresa.forEach(doc => {
         docs.push({
           ...doc,

@@ -10,6 +10,7 @@ const SeguimientoEvaluacion = ({ companies = initialCompanies, employees = initi
   const navigate = useNavigate();
   const [filtroEstado, setFiltroEstado] = useState('all');
   const [busquedaEmpleado, setBusquedaEmpleado] = useState('');
+  const [selectedResultado, setSelectedResultado] = useState(null);
 
   const evaluacion = useMemo(() => {
     return evaluaciones.find(e => e.id === parseInt(evaluacionId));
@@ -87,6 +88,82 @@ const SeguimientoEvaluacion = ({ companies = initialCompanies, employees = initi
     navigate(`/anexo1/empresa/${empresaId}/evaluaciones?editar=${evaluacion.id}`);
   };
 
+  const generarHTMLResultado = (resultado) => {
+    if (!resultado || !evaluacion) return '';
+    const empresa = companies?.find(c => c.id === resultado.empresaId);
+    const empleado = employees?.find(e => e.id === resultado.trabajadorId);
+
+    const partes = [];
+    partes.push('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Resultado de Evaluación</title>');
+    partes.push('<style>body{font-family:Arial,sans-serif;padding:20px;max-width:800px;margin:0 auto}h1{color:#004A7C;border-bottom:3px solid #004A7C;padding-bottom:10px}.info{margin:20px 0;background:#f8f9fa;padding:15px;border-radius:8px}.info p{margin:8px 0}.calificacion{background:#e8f5e9;padding:20px;border-radius:8px;margin:20px 0;border-left:5px solid #22c55e}.calificacion h2{margin-top:0;color:#22c55e}.pregunta{margin:20px 0;padding:15px;border-left:4px solid #004A7C;background:#f8f9fa;border-radius:4px}.correcta{color:#22c55e;font-weight:bold}.incorrecta{color:#ef4444;font-weight:bold}@media print{body{padding:10px}}</style>');
+    partes.push('</head><body>');
+    partes.push('<h1>Resultado de Evaluación</h1>');
+    partes.push('<div class="info">');
+    partes.push('<p><strong>Trabajador:</strong> ' + getNombreCompleto(empleado) + '</p>');
+    partes.push('<p><strong>Empresa:</strong> ' + (empresa?.name || 'N/A') + '</p>');
+    partes.push('<p><strong>Evaluación:</strong> ' + evaluacion.nombre + '</p>');
+    partes.push('<p><strong>Fecha de Respuesta:</strong> ' + (resultado.fechaRespuesta ? new Date(resultado.fechaRespuesta).toLocaleString('es-ES') : 'Pendiente') + '</p>');
+    partes.push('</div>');
+    if (resultado.calificacion !== null) {
+      partes.push('<div class="calificacion"><h2>Calificación</h2>');
+      partes.push('<p><strong>Nota:</strong> ' + resultado.calificacion + ' / 10</p>');
+      partes.push('<p><strong>Porcentaje:</strong> ' + resultado.porcentaje + '%</p>');
+      partes.push('</div>');
+    }
+    partes.push('<h2>Respuestas Detalladas</h2>');
+    if (resultado.respuestas && resultado.respuestas.length > 0) {
+      resultado.respuestas.forEach((resp, idx) => {
+        const pregunta = evaluacion?.preguntas?.find(p => p && p.id === resp.preguntaId);
+        if (!pregunta) return;
+        if (pregunta.tipo === 'opcion-multiple') {
+          const opcionSeleccionada = pregunta.opciones?.find(op => op && op.id === resp.respuestaSeleccionada);
+          const esCorrecta = resp.esCorrecta;
+          const respuestaCorrecta = pregunta.opciones?.find(op => op && op.correcta);
+          partes.push('<div class="pregunta">');
+          partes.push('<p><strong>Pregunta ' + (idx + 1) + ':</strong> ' + (pregunta.pregunta || 'Sin pregunta') + '</p>');
+          partes.push('<p class="' + (esCorrecta ? 'correcta' : 'incorrecta') + '">');
+          partes.push('Respuesta: ' + (opcionSeleccionada?.texto || 'No seleccionada') + ' ');
+          partes.push(esCorrecta ? '\u2713 Correcta' : '\u2717 Incorrecta');
+          partes.push('</p>');
+          if (!esCorrecta && respuestaCorrecta) {
+            partes.push('<p><strong>Respuesta correcta:</strong> ' + respuestaCorrecta.texto + '</p>');
+          }
+          partes.push('</div>');
+        } else {
+          partes.push('<div class="pregunta">');
+          partes.push('<p><strong>Pregunta ' + (idx + 1) + ':</strong> ' + (pregunta.pregunta || 'Sin pregunta') + '</p>');
+          partes.push('<p><strong>Respuesta:</strong> ' + (resp.respuestaTexto || 'Sin respuesta') + '</p>');
+          partes.push('<p><em>(Revisión manual requerida)</em></p>');
+          partes.push('</div>');
+        }
+      });
+    } else {
+      partes.push('<p>No hay respuestas disponibles</p>');
+    }
+    partes.push('</body></html>');
+    return partes.join('');
+  };
+
+  const handleVerDetalle = (resultado) => {
+    setSelectedResultado(resultado);
+  };
+
+  const handleDescargarPDF = (resultado) => {
+    if (!resultado) return;
+    const htmlContent = generarHTMLResultado(resultado);
+    if (!htmlContent) return;
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('Por favor, permite las ventanas emergentes para descargar el PDF');
+      return;
+    }
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    printWindow.onload = () => {
+      setTimeout(() => printWindow.print(), 250);
+    };
+  };
+
   if (!evaluacion) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -112,7 +189,7 @@ const SeguimientoEvaluacion = ({ companies = initialCompanies, employees = initi
               </svg>
               Volver a Evaluaciones
             </button>
-            <h1 className="text-3xl font-bold text-gray-800">Seguimiento de Evaluación</h1>
+            <h1 className="text-3xl font-bold text-gray-800">Resultados de Evaluación</h1>
             <p className="text-gray-600 mt-1">{evaluacion.nombre}</p>
           </div>
           <div className="flex gap-3">
@@ -253,7 +330,7 @@ const SeguimientoEvaluacion = ({ companies = initialCompanies, employees = initi
                       <td className="px-6 py-4">
                         {respuesta.estado === 'Respondida' && (
                           <button
-                            onClick={() => navigate(`/control-resultados?respuestaId=${respuesta.id}`)}
+                            onClick={() => handleVerDetalle(respuesta)}
                             className="text-primary hover:text-primary-dark text-sm font-medium"
                           >
                             Ver Detalle
@@ -274,6 +351,48 @@ const SeguimientoEvaluacion = ({ companies = initialCompanies, employees = initi
           </table>
         </div>
       </div>
+
+      {/* Modal de Detalle del Resultado */}
+      {selectedResultado && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2">
+          <div className="bg-white rounded-lg shadow-xl w-full h-full max-w-[95vw] max-h-[95vh] flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b bg-gray-50">
+              <h2 className="text-2xl font-bold text-gray-800">Detalle de Resultado</h2>
+              <button
+                onClick={() => setSelectedResultado(null)}
+                className="text-gray-500 hover:text-gray-700 text-3xl font-bold w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="flex-1 overflow-hidden p-4">
+              <iframe
+                srcDoc={generarHTMLResultado(selectedResultado)}
+                className="w-full h-full border border-gray-300 rounded-lg"
+                title="Detalle de Resultado"
+                style={{ minHeight: '600px' }}
+              />
+            </div>
+            <div className="flex items-center justify-end gap-3 p-4 border-t bg-gray-50">
+              <button
+                onClick={() => setSelectedResultado(null)}
+                className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors font-medium"
+              >
+                Cerrar
+              </button>
+              <button
+                onClick={() => handleDescargarPDF(selectedResultado)}
+                className="flex items-center gap-2 bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-colors font-medium"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Descargar PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
