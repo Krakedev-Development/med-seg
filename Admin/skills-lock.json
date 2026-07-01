@@ -6,6 +6,12 @@
       "sourceType": "github",
       "skillPath": "feature-sliced-design/SKILL.md",
       "computedHash": "d4eaefe92df4439ffa8c6c06762047f0fc3aeb5ffc620d5239dce8d95592fe60"
+    },
+    "atomic-design": {
+      "source": "ivantorresedge/molcajete.ai",
+      "sourceType": "github",
+      "skillPath": "deprecated/tech-stacks/js/react/skills/atomic-design/SKILL.md",
+      "computedHash": "23460fca0f10cfa50b8012411a3c9d58d5929dee72adb20294e7454964798140"
     }
   }
 }

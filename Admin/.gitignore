@@ -23,3 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 
+
+# IDE Agents & Skills
+.agents/
