@@ -3,8 +3,6 @@ import { ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-const videoSrc = "/videos/Video.mp4";
-
 export function HeroSection() {
   const handleScrollToServices = () => {
     const servicesSection = document.querySelector("#servicios");
@@ -20,14 +18,10 @@ export function HeroSection() {
     >
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="relative aspect-square h-full w-full max-h-[90vh] max-w-[90vh] md:aspect-auto md:h-full md:w-full md:max-h-none md:max-w-none">
-          <video
+          <img
             className="h-full w-full object-contain md:object-cover"
-            src={videoSrc}
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
+            src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80"
+            alt="Intervención médica o inspección"
           />
           <div className="absolute inset-0 bg-gradient-to-br from-slate-900/85 via-brand-blue/65 to-brand-teal/40" />
         </div>
@@ -52,7 +46,7 @@ export function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.7, ease: "easeOut" }}
         >
-          Tu salud y seguridad laboral son nuestra prioridad.
+          Seguridad, salud y cumplimiento conectados en un solo lugar.
         </motion.h1>
         <motion.p
           className="mt-6 text-lg text-slate-100 sm:text-xl"
@@ -60,25 +54,29 @@ export function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.65, duration: 0.7, ease: "easeOut" }}
         >
-          Evaluaciones médicas, seguridad industrial y programas de prevención en un
-          solo lugar.
+          MEDI&SEG integra asesoría SST, medicina ocupacional, exámenes, capacitación presencial, seguimiento digital y equipos de protección personal para cuidar a los trabajadores y facilitar la gestión de las empresas.
         </motion.p>
         <motion.div
-          className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row"
+          className="mt-10 flex flex-wrap items-center justify-center gap-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.7, ease: "easeOut" }}
         >
-          <Button size="lg" onClick={handleScrollToServices}>
-            Conoce nuestros servicios
+          <Button size="lg" onClick={() => {}}>
+            Solicitar diagnóstico empresarial
           </Button>
-          <button
-            onClick={handleScrollToServices}
-            className="inline-flex items-center gap-2 text-sm font-medium text-white/80 transition hover:text-white"
-          >
-            Desplázate para explorar
-            <ChevronDown className="h-4 w-4 animate-bounce" />
-          </button>
+          <Button size="lg" variant="outline" className="bg-transparent text-white border-white hover:bg-white hover:text-slate-900" onClick={() => {}}>
+            Conocer nuestros servicios
+          </Button>
+          <Button size="lg" variant="secondary" onClick={() => {}}>
+            Ingresar a mi portal
+          </Button>
+          <Button size="lg" variant="outline" className="bg-transparent text-white border-white hover:bg-white hover:text-slate-900" onClick={() => {}}>
+            Cotizar equipos de protección personal
+          </Button>
+          <Button size="lg" variant="secondary" className="bg-green-600 hover:bg-green-700 text-white border-none" onClick={() => {}}>
+            Contactar por WhatsApp
+          </Button>
         </motion.div>
       </motion.div>
     </section>
